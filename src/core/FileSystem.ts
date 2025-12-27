@@ -401,10 +401,10 @@ Este es tu sistema operativo personal.
     const file = {
       type: 'file',
       name: name,
-      content: content,
+      content: content ? content : '',
       createdAt: new Date().toISOString(),
       modifiedAt: new Date().toISOString(),
-      size: content.length
+      size: content ? content.length : 0
     };
 
     const parentPath = this.getPath().replace(/\/$/, '');

@@ -5,10 +5,12 @@ export class AppHandler {
     windowManager: WindowManager;
     fs: FileSystem;
     shawOS: ShawOS;
+    appInstances: Map<string, any>;
     constructor(windowManager: WindowManager, fileSystem: FileSystem, shawOS: ShawOS) {
         this.windowManager = windowManager;
         this.fs = fileSystem;
         this.shawOS = shawOS;
+        this.appInstances = new Map<string, any>();
     }
 
     getAppClassByName(appName: string) {
@@ -20,7 +22,7 @@ export class AppHandler {
     }
 
     openApp(AppClass: any, appSettings: any, after = {}) {
-        const container = this.windowManager.createWindow(...(appSettings.window as [string, string, any, number, number]));
+        const container = this.windowManager.createWindow(...(appSettings.window as [string, string, any, number, number]), () => { this.appInstances.delete(appSettings.window[0]); });
         if (container) {
             var appInstance;
             if (appSettings.needsSystem) { appInstance = new AppClass(container, this.fs, this.shawOS); }
@@ -29,6 +31,8 @@ export class AppHandler {
                 try{ appSettings.after({ app: appInstance, fs: this.fs, shawOS: this.shawOS, other: after })}
                 catch(e){ console.error(e); }
             }
+            this.appInstances.set(appSettings.window[0], appInstance);
+            return appInstance;
         }
     }
 
@@ -36,15 +40,16 @@ export class AppHandler {
         const AppClass = this.getAppClassByName(appName);
         if (!AppClass) return;
         const appSettings = AppClass.appSettings({ fs: this.fs });
-        this.openApp(AppClass, appSettings);
+        const appInstance = this.openApp(AppClass, appSettings);
+        return appInstance;
     }
 
     fileOpener(file: any) {
         const AppClass = this.getAppClassByFileType(file.name.split('.').pop());
-        if (!AppClass) return false;
+        if (!AppClass) return null;
         const appSettings = AppClass.appFileOpenerSettings({ fs: this.fs, filename: file.name });
-        this.openApp(AppClass, appSettings, { filename: file.name });
-        return true;
+        const appInstance = this.openApp(AppClass, appSettings, { filename: file.name });
+        return appInstance;
     }
 
     static run(windowManager: WindowManager, fileSystem: FileSystem, shawOS: ShawOS) {

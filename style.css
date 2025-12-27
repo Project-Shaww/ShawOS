@@ -512,7 +512,27 @@ body {
   background: #222;
 }
 
-.code-editor-toolbar button {
+.code-editor-toolbar-button {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  padding: 2px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.code-editor-toolbar-button:hover {
+  scale: 1.1;
+}
+
+#code-editor-toolbar-files {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.code-editor-toolbar-file {
   padding: 8px 16px;
   border: 1px solid #444;
   background: #222;
@@ -523,7 +543,12 @@ body {
   transition: all 0.2s;
 }
 
-.code-editor-toolbar button:hover {
+.code-editor-toolbar-file:hover {
+  background: #444;
+  border-color: #444;
+}
+
+.code-editor-toolbar-file.active {
   background: #444;
   border-color: #444;
 }

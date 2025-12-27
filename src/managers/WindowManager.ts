@@ -2,9 +2,9 @@
 import { HTMLContainer } from "../types";
 
 export class WindowManager {
-  private windows: Map<string, { window: HTMLElement; title: string; minimized: boolean }>;
-  private zIndexCounter: number;
-  private activeWindow: string | null;
+  windows: Map<string, { window: HTMLElement; title: string; minimized: boolean, onClose?: () => void }>;
+  zIndexCounter: number;
+  activeWindow: string | null;
 
   constructor() {
     this.windows = new Map();
@@ -12,7 +12,7 @@ export class WindowManager {
     this.activeWindow = null;
   }
 
-  createWindow(id: string, title: string, content: any, width = 600, height = 400) {
+  createWindow(id: string, title: string, content: any, width = 600, height = 400, onClose = () => { }) {
     if (this.windows.has(id)) {
       this.focusWindow(id);
       return;
@@ -61,7 +61,7 @@ export class WindowManager {
     this.setupDragging(_window, header);
     this.setupControls(_window, id, title);
 
-    this.windows.set(id, { window: _window, title, minimized: false });
+    this.windows.set(id, { window: _window, title, minimized: false, onClose: onClose });
     this.activeWindow = id;
 
     this.updateTaskbar();
@@ -172,6 +172,7 @@ export class WindowManager {
   closeWindow(id: string) {
     const windowData = this.windows.get(id);
     if (!windowData) return;
+    if (windowData.onClose) try { windowData.onClose(); } catch (e) { console.error(e); }
 
     windowData.window.remove();
     this.windows.delete(id);
