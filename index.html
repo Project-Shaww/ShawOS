@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShawOS</title>
+  <style>
+    /* Prevent flash before boot screen loads */
+    #os-container {
+      opacity: 0;
+      animation: fadeIn 0.3s ease-in forwards;
+      animation-delay: 0.1s;
+    }
+    
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="os-container">
+    <div id="taskbar">
+      <div class="taskbar-left">
+        <button id="start-menu-btn" class="start-btn">
+          <span class="start-icon">⚙️</span>
+          <span>Menú</span>
+        </button>
+        <div id="taskbar-apps"></div>
+      </div>
+      <div class="taskbar-right">
+        <div id="clock"></div>
+      </div>
+    </div>
+
+    <div id="desktop">
+      <div id="start-menu" class="start-menu hidden">
+        <div class="menu-header">ShawOS</div>
+        
+        <!-- Utilidades -->
+        <div class="menu-item" data-action="shawme">
+          🌐 ShawMe Browser
+        </div>
+        <div class="menu-item" data-action="date">
+          📅 Ver Fecha y Hora
+        </div>
+        <div class="menu-item" data-action="files">
+          📁 Gestor de Archivos
+        </div>
+        <div class="menu-item" data-action="terminal">
+          💻 Terminal
+        </div>
+        
+        <div class="menu-divider"></div>
+        <div class="menu-section-title">Aplicaciones</div>
+        
+        <div class="menu-item" data-action="calculator">
+          🔢 Calculadora
+        </div>
+        <div class="menu-item" data-action="notepad">
+          📝 Bloc de Notas
+        </div>
+        <div class="menu-item" data-action="code-editor">
+          📝 Editor de Codigo
+        </div>
+        <div class="menu-item" data-action="paint">
+          🎨 Paint
+        </div>
+        <div class="menu-item" data-action="music">
+          🎹 Reproductor de Música
+        </div>
+        
+        <div class="menu-divider"></div>
+        <div class="menu-section-title">Juegos</div>
+        
+        <div class="menu-item" data-action="snake">
+          🐍 Snake
+        </div>
+        <div class="menu-item" data-action="memory">
+          🧠 Memory Game
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
