@@ -2,9 +2,10 @@
 
 ![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow?style=for-the-badge)
 ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
 ![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
 
-Un sistema operativo completo simulado en el navegador construido con JavaScript vanilla y Vite, con arquitectura modular inspirada en Unix/Linux y sistema de usuarios real con almacenamiento persistente.
+Un sistema operativo completo simulado en el navegador construido con TypeScript y Vite, con arquitectura modular inspirada en Unix/Linux y sistema de usuarios real con almacenamiento persistente.
 
 ---
 
@@ -27,7 +28,7 @@ Un sistema operativo completo simulado en el navegador construido con JavaScript
 
 ---
 
-##  Características Principales
+## Características Principales
 
 ###  Sistema Operativo Completo
 
@@ -37,11 +38,10 @@ Un sistema operativo completo simulado en el navegador construido con JavaScript
 - **Sistema de Ventanas Avanzado**: Ventanas redimensionables, arrastrables, con z-index dinámico
 - **Barra de Tareas**: Aplicaciones abiertas, reloj en tiempo real, menú Start
 - **Gestor de Archivos Visual**: Navegación completa con iconos y vistas detalladas
-- **Terminal Profesional**: Shell tipo Unix con 21+ comandos y estilo moderno
+- **Terminal Profesional**: Shell tipo Unix con 24+ comandos y estilo moderno
 - **Sistema de Diálogos**: Modales personalizados sin alerts nativos
 
-###  Sistema de Usuarios Real
-
+###  Sistema de Usuarios 
 - **Multi-usuario**: Cada usuario tiene su propio sistema de archivos aislado
 - **Autenticación**: Sistema de login/logout con contraseñas hasheadas
 - **Persistencia**: Datos guardados en localStorage por usuario
@@ -63,6 +63,7 @@ Un sistema operativo completo simulado en el navegador construido con JavaScript
 -  Terminal avanzada con syntax highlighting
 -  Gestor de Archivos con vista de detalles
 -  Bloc de Notas con integración al FS
+-  Editor de Código con syntax highlighting
 -  Fecha y Hora en tiempo real
 
 **Productividad:**
@@ -73,14 +74,10 @@ Un sistema operativo completo simulado en el navegador construido con JavaScript
 **Entretenimiento:**
 -  Snake Game con puntuación
 -  Memory Game con animaciones
+-  Test Game (en desarrollo)
 
 ---
 
-##  Demo en Vivo
-
-**[Probar ShawOS ahora →](https://shawos.vercel.app)** *(Próximamente)*
-
----
 
 ##  Arquitectura del Sistema
 
@@ -116,21 +113,21 @@ ShawOS implementa una arquitectura de capas inspirada en sistemas Unix/Linux:
 ###  Componentes Principales
 
 **Core System:**
-- `FileSystem.js` - Sistema de archivos virtual por usuario
-- `ProcessManager.js` - Ejecución dinámica de comandos
-- `AppContext.js` - Contexto compartido entre aplicaciones
-- `UserManager.js` - Gestión de usuarios y autenticación
+- `FileSystem.ts` - Sistema de archivos virtual por usuario
+- `ProcessManager.ts` - Ejecución dinámica de comandos
+- `AppContext.ts` - Contexto compartido entre aplicaciones
+- `UserManager.ts` - Gestión de usuarios y autenticación
 
 **Shell:**
-- `Terminal.js` - Intérprete de comandos con autocompletado e historial
+- `Terminal.ts` - Intérprete de comandos con autocompletado e historial
 
 **Authentication:**
-- `BootScreen.js` - Secuencia de arranque animada
-- `LoginScreen.js` - Pantalla de login/registro
+- `BootScreen.ts` - Secuencia de arranque animada
+- `LoginScreen.ts` - Pantalla de login/registro
 
 **Managers:**
-- `WindowManager.js` - Gestión de ventanas y z-index
-- `DialogManager.js` - Sistema de diálogos modales
+- `WindowManager.ts` - Gestión de ventanas y z-index
+- `DialogManager.ts` - Sistema de diálogos modales
 
 ---
 
@@ -139,72 +136,87 @@ ShawOS implementa una arquitectura de capas inspirada en sistemas Unix/Linux:
 ```
 shawos/
 ├── public/
-│   ├── backgrounds/          # Fondos de escritorio
-│   │   └── fondo.webp          # Fondo personalizado (opcional)
-│   └── logos/                    # Logos de aplicaciones
-│       ├── shawme.webp         # Logo del navegador
-│       └── terminal.webp         # Logo de terminal
+│   ├── backgrounds/              # Fondos de escritorio
+│   │   └── fondo.webp              # Fondo personalizado (opcional)
+│   └── logos/                      # Logos de aplicaciones
+│       ├── shawme.webp             # Logo del navegador
+│       └── terminal.webp           # Logo de terminal
 │
 ├── src/
-│   ├── core/                   # Núcleo del sistema
-│   │   ├── FileSystem.js        # Sistema de archivos virtual por usuario
-│   │   ├── ProcessManager.js    # Gestor de procesos y comandos
-│   │   ├── AppContext.js        # Contexto para aplicaciones
-│   │   └── UserManager.js       #  Gestión de usuarios
+│   ├── core/                     # Núcleo del sistema
+│   │   ├── FileSystem.ts          # Sistema de archivos virtual por usuario
+│   │   ├── ProcessManager.ts      # Gestor de procesos y comandos
+│   │   ├── AppContext.ts          # Contexto para aplicaciones
+│   │   └── UserManager.ts         #  Gestión de usuarios
 │   │
-│   ├── boot/                  # Sistema de arranque
-│   │   └── BootScreen.js        # Pantalla de boot animada
+│   ├── boot/                    # Sistema de arranque
+│   │   └── BootScreen.ts          # Pantalla de boot animada
 │   │
-│   ├── auth/                  # Autenticación
-│   │   └── LoginScreen.js       # Login y registro de usuarios
+│   ├── auth/                    # Autenticación
+│   │   └── LoginScreen.ts         # Login y registro de usuarios
 │   │
-│   ├── shell/                 # Terminal
-│   │   └── Terminal.js          # Terminal con estilo moderno
+│   ├── shell/                   # Terminal
+│   │   └── Terminal.ts            # Terminal con estilo moderno
 │   │
 │   ├── apps/
-│   │   ├── bin/              #  Comandos de terminal (21+)
-│   │   │   ├── ls.js           # Listar archivos
-│   │   │   ├── cd.js           # Cambiar directorio
-│   │   │   ├── cat.js          # Ver contenido
-│   │   │   ├── mkdir.js        # Crear carpeta
-│   │   │   ├── touch.js        # Crear archivo
-│   │   │   ├── rm.js           # Eliminar
-│   │   │   ├── pwd.js          # Ruta actual
-│   │   │   ├── echo.js         # Imprimir texto
-│   │   │   ├── clear.js        # Limpiar terminal
-│   │   │   ├── date.js         # Fecha y hora
-│   │   │   ├── whoami.js       # Usuario actual
-│   │   │   ├── hostname.js     # Nombre del host
-│   │   │   ├── uname.js        # Info del sistema
-│   │   │   ├── history.js      # Historial
-│   │   │   ├── tree.js         # Árbol de directorios
-│   │   │   ├── help.js         # Ayuda
-│   │   │   ├── man.js          # Manual
-│   │   │   ├── neofetch.js     # Info del sistema estilo neofetch
-│   │   │   ├── cowsay.js       # Vaca ASCII
-│   │   │   ├── figlet.js       # ASCII art
-│   │   │   └── banner.js       # Banners
+│   │   ├── bin/                #  Comandos de terminal (24+)
+│   │   │   ├── banner.js         # Banners ASCII
+│   │   │   ├── cat.js            # Ver contenido
+│   │   │   ├── cd.js             # Cambiar directorio
+│   │   │   ├── clear.js          # Limpiar terminal
+│   │   │   ├── cowsay.js         # Vaca ASCII
+│   │   │   ├── date.js           # Fecha y hora
+│   │   │   ├── echo.js           # Imprimir texto
+│   │   │   ├── figlet.js         # ASCII art
+│   │   │   ├── help.js           # Ayuda de comandos
+│   │   │   ├── history.js        # Historial
+│   │   │   ├── hostname.js       # Nombre del host
+│   │   │   ├── logout.js         # Cerrar sesión
+│   │   │   ├── ls.js             # Listar archivos
+│   │   │   ├── man.js            # Manual
+│   │   │   ├── mkdir.js          # Crear carpeta
+│   │   │   ├── neofetch.js       # Info del sistema estilo neofetch
+│   │   │   ├── pwd.js            # Ruta actual
+│   │   │   ├── reboot.js         # Reiniciar sistema
+│   │   │   ├── rm.js             # Eliminar
+│   │   │   ├── shutdown.js       # Apagar sistema
+│   │   │   ├── touch.js          # Crear archivo
+│   │   │   ├── tree.js           # Árbol de directorios
+│   │   │   ├── uname.js          # Info del sistema
+│   │   │   └── whoami.js         # Usuario actual
+│   │   │   ├── spm.js          # Shaww Package Manager
+│   │   │   └── open-package.js    
 │   │   │
-│   │   └── gui/              # Aplicaciones gráficas
-│   │       ├── ShawMe.js       # Navegador web integrado
-│   │       ├── Calculator.js   # Calculadora
-│   │       ├── DateApp.js      # Fecha y hora
-│   │       ├── FileManager.js  # Gestor de archivos mejorado
-│   │       ├── Notepad.js      # Bloc de notas
-│   │       ├── SnakeGame.js    # Juego Snake
-│   │       ├── MemoryGame.js   # Juego de memoria
-│   │       ├── Paint.js        # Editor de dibujo
-│   │       └── MusicPlayer.js  # Piano virtual
+│   │   ├── gui/                #  Aplicaciones gráficas
+│   │   │   ├── Calculator.ts     # Calculadora científica
+│   │   │   ├── CodeEditor.ts     #  Editor de código
+│   │   │   ├── DateApp.ts        # Fecha y hora
+│   │   │   ├── FileManager.ts    # Gestor de archivos mejorado
+│   │   │   ├── MemoryGame.ts     # Juego de memoria
+│   │   │   ├── MusicPlayer.ts    # Piano virtual
+│   │   │   ├── Notepad.ts        # Bloc de notas
+│   │   │   ├── Paint.ts          # Editor de dibujo
+│   │   │   ├── Shawme.ts         # Navegador web integrado
+│   │   │   ├── SnakeGame.ts      # Juego Snake
+│   │   │   └── TestGame.ts       # Juego de prueba
+│   │   │
+│   │   └── handler/            #  Gestión de aplicaciones
+│   │       ├── Apps.ts           # Registro de aplicaciones
+│   │       ├── AppSupportedFiles.ts # Tipos de archivos soportados
+│   │       └── index.ts          # Handler principal
 │   │
-│   ├── managers/             # Gestores del sistema
-│   │   ├── WindowManager.js    # Gestión de ventanas
-│   │   └── DialogManager.js    # Diálogos modales
+│   ├── managers/               # Gestores del sistema
+│   │   ├── WindowManager.ts      # Gestión de ventanas
+│   │   └── DialogManager.ts      # Diálogos modales
 │   │
-│   └── main.js               # Punto de entrada
+│   ├── main.ts                 # Punto de entrada principal
+│   ├── shawos.ts               # Clase principal del SO
+│   └── types.ts                # Definiciones de tipos TypeScript
 │
-├── index.html                # Página principal
-├── style.css                 # Estilos del sistema
+├── index.html                  # Página principal
+├── style.css                   # Estilos del sistema
 ├── package.json
+├── package-lock.json
 ├── vite.config.js
 └── README.md
 ```
@@ -238,6 +250,8 @@ npm run dev
 # El servidor se iniciará en http://localhost:5173
 ```
 
+```
+
 ---
 
 ##  Sistema de Usuarios
@@ -268,15 +282,15 @@ Cada usuario tiene su propio espacio:
 
 ```
 /home/[usuario]/
-├── Desktop/           # Escritorio (inicio por defecto)
-│   ├── Bienvenido.txt   # Archivo de bienvenida
-│   ├── Terminal.app     # Acceso directo a terminal
-│   └── ShawMe.app       # Acceso directo al navegador
-├── Documents/           # Documentos
-├── Downloads/         # Descargas
-├── Pictures/          # Imágenes
-├── Music/             # Música
-└── Videos/            # Videos
+├── Desktop/              # Escritorio (inicio por defecto)
+│   ├── Bienvenido.txt      # Archivo de bienvenida
+│   ├── Terminal.app        # Acceso directo a terminal
+│   └── ShawMe.app          # Acceso directo al navegador
+├── Documents/            # Documentos
+├── Downloads/            # Descargas
+├── Pictures/             # Imágenes
+├── Music/                # Música
+└── Videos/               # Videos
 ```
 
 ### Comandos de Usuario
@@ -285,26 +299,29 @@ Cada usuario tiene su propio espacio:
 # Ver usuario actual
 whoami
 
-# Cerrar sesión (desde menú Start)
-# Sistema > Cerrar Sesión
+# Cerrar sesión
+logout
 
-# Reiniciar sistema (desde menú Start)
-# Sistema > Reiniciar Sistema
+# Reiniciar sistema
+reboot
+
+# Apagar sistema
+shutdown
 ```
 
 ---
 
 ##  Aplicaciones Incluidas
 
-### ShawMe Browser (NUEVO)
+###  ShawMe Browser
 
 Navegador web integrado con características modernas:
 
 - **Barra de direcciones** con búsqueda en Google
 - **Botones de navegación**: Atrás, Adelante, Recargar, Home
 - **Sitios recomendados**:
-  - 🌌 [Nebula Core](https://nebulacoree.duckdns.org)
-  - 🔬 [Divulgando Ciencia](https://www.divulgandociencia.com)
+  -  [Nebula Core](https://nebulacoree.duckdns.org)
+  -  [Divulgando Ciencia](https://www.divulgandociencia.com)
 - **Iframe seguro** para cargar páginas web
 - **Fallback inteligente**: Si un sitio bloquea iframes, abre en nueva pestaña
 - **Historial de navegación** con flechas
@@ -329,13 +346,25 @@ Explorador de archivos completo:
 - **Vista de lista** con detalles (tamaño, fecha)
 - **Iconos diferenciados** (📁 carpetas, 📄 archivos, 💻 apps)
 - **Operaciones**: Crear archivo/carpeta, eliminar, actualizar
-- **Doble clic** para abrir archivos .txt o navegar carpetas
+- **Doble clic** para abrir archivos o navegar carpetas
 - **Integración** con aplicaciones (abre apps .app)
 - **Barra de ruta** muestra ubicación actual
 
+###  Editor de Código (NUEVO)
+
+Editor de código con syntax highlighting:
+
+- **Soporte múltiples lenguajes**: JavaScript, Python, HTML, CSS, JSON, etc.
+- **Syntax highlighting** con CodeMirror
+- **Numeración de líneas**
+- **Tema oscuro** optimizado para código
+- **Abrir/Guardar** archivos de código
+- **Integración completa** con FileSystem
+- **Auto-detección** de lenguaje por extensión
+
 ###  Bloc de Notas
 
-Editor de texto integrado:
+Editor de texto simple:
 
 - **Abrir/Guardar** archivos .txt
 - **Integración completa** con FileSystem
@@ -360,7 +389,7 @@ Sintetizador musical con Web Audio API:
 - **Melodías demo** pre-programadas
 - **Sonido real** con oscillators
 
-###  Snake Game
+### Snake Game
 
 Juego clásico de la serpiente:
 
@@ -396,40 +425,49 @@ Widget de reloj:
 
 ---
 
-## Terminal y Comandos
+##  Terminal y Comandos
 
-### Comandos Disponibles (21+)
+### Comandos Disponibles (24+)
 
 #### Navegación y Sistema de Archivos
-- **`ls`** - Lista archivos y directorios (*Uso*: `ls [-l]`, *Ejemplo*: `ls -l`)
-- **`cd`** - Cambia de directorio (*Uso*: `cd [ruta]`, *Ejemplo*: `cd Documents`)
-- **`pwd`** - Muestra la ruta actual (*Uso*: `pwd`, *Ejemplo*: `pwd`)
-- **`tree`** - Muestra árbol de directorios (*Uso*: `tree`, *Ejemplo*: `tree`)
+- **`ls`** - Lista archivos y directorios (*Uso*: `ls [-l]`)
+- **`cd`** - Cambia de directorio (*Uso*: `cd [ruta]`)
+- **`pwd`** - Muestra la ruta actual (*Uso*: `pwd`)
+- **`tree`** - Muestra árbol de directorios (*Uso*: `tree`)
 
 #### Manipulación de Archivos
-- **`cat`** - Muestra contenido de archivo (*Uso*: `cat archivo`, *Ejemplo*: `cat nota.txt`)
-- **`touch`** - Crea un archivo vacío (*Uso*: `touch archivo`, *Ejemplo*: `touch nuevo.txt`)
-- **`mkdir`** - Crea un directorio (*Uso*: `mkdir carpeta`, *Ejemplo*: `mkdir proyectos`)
-- **`rm`** - Elimina archivo o directorio (*Uso*: `rm nombre`, *Ejemplo*: `rm viejo.txt`)
+- **`cat`** - Muestra contenido de archivo (*Uso*: `cat archivo`)
+- **`touch`** - Crea un archivo vacío (*Uso*: `touch archivo`)
+- **`mkdir`** - Crea un directorio (*Uso*: `mkdir carpeta`)
+- **`rm`** - Elimina archivo o directorio (*Uso*: `rm nombre`)
 
 #### Información del Sistema
-- **`whoami`** - Muestra el usuario actual (*Uso*: `whoami`, *Ejemplo*: `whoami`)
-- **`hostname`** - Muestra el nombre del host (*Uso*: `hostname`, *Ejemplo*: `hostname`)
-- **`uname`** - Información del sistema (*Uso*: `uname [-a]`, *Ejemplo*: `uname -a`)
-- **`date`** - Muestra fecha y hora (*Uso*: `date`, *Ejemplo*: `date`)
-- **`neofetch`** - Info del sistema estilo neofetch (*Uso*: `neofetch`, *Ejemplo*: `neofetch`)
+- **`whoami`** - Muestra el usuario actual (*Uso*: `whoami`)
+- **`hostname`** - Muestra el nombre del host (*Uso*: `hostname`)
+- **`uname`** - Información del sistema (*Uso*: `uname [-a]`)
+- **`date`** - Muestra fecha y hora (*Uso*: `date`)
+- **`neofetch`** - Info del sistema estilo neofetch (*Uso*: `neofetch`)
+
+#### Control del Sistema
+- **`logout`** - Cierra la sesión del usuario (*Uso*: `logout`)
+- **`reboot`** - Reinicia el sistema (*Uso*: `reboot`)
+- **`shutdown`** - Apaga el sistema (*Uso*: `shutdown [-h] [-r]`)
 
 #### Utilidades
-- **`echo`** - Imprime texto (*Uso*: `echo texto`, *Ejemplo*: `echo Hola`)
-- **`clear`** - Limpia la terminal (*Uso*: `clear` o `cls`, *Ejemplo*: `clear`)
-- **`history`** - Historial de comandos (*Uso*: `history`, *Ejemplo*: `history`)
-- **`help`** - Muestra ayuda de comandos (*Uso*: `help`, *Ejemplo*: `help`)
-- **`man`** - Manual de comandos (*Uso*: `man`, *Ejemplo*: `man`)
+- **`echo`** - Imprime texto (*Uso*: `echo texto`)
+- **`clear`** - Limpia la terminal (*Uso*: `clear` o `cls`)
+- **`history`** - Historial de comandos (*Uso*: `history`)
+- **`help`** - Muestra ayuda de comandos (*Uso*: `help`)
+- **`man`** - Manual de comandos (*Uso*: `man`)
 
 #### Diversión
-- **`cowsay`** - Vaca ASCII que habla (*Uso*: `cowsay texto`, *Ejemplo*: `cowsay Hola`)
-- **`figlet`** - Texto en ASCII art grande (*Uso*: `figlet texto`, *Ejemplo*: `figlet SHAW`)
-- **`banner`** - Banner decorativo (*Uso*: `banner texto`, *Ejemplo*: `banner HI`)
+- **`cowsay`** - Vaca ASCII que habla (*Uso*: `cowsay texto`)
+- **`figlet`** - Texto en ASCII art grande (*Uso*: `figlet texto`)
+- **`banner`** - Banner decorativo (*Uso*: `banner texto`)
+
+#### Paquetes
+- **`spm`** - Shaww Package Manager (*Uso*: `spm install <nombre del paquete>`)
+- **`open-package`** - Ejecuta el paquete descargado (*Uso*: `open-package <nombre del psquete>`)
 
 ### Atajos de Teclado
 - **`↑` / `↓`**: Navegar historial de comandos
@@ -437,6 +475,7 @@ Widget de reloj:
 - **`Ctrl+L`**: Limpiar terminal (equivalente a `clear`)
 - **`Ctrl+C`**: Cancelar comando actual / interrumpir
 - **`Enter`**: Ejecutar comando o línea vacía (nuevo prompt)
+
 ###  Rutas y Navegación
 
 ```bash
@@ -466,23 +505,23 @@ pwd               # ~/Desktop (ejemplo)
 /
 ├── home/
 │   └── [usuario]/
-│       ├── Desktop/             #  Escritorio (inicio)
-│       │   ├── Bienvenido.txt     # Archivo de bienvenida
-│       │   ├── Terminal.app       # Acceso directo
-│       │   └── ShawMe.app         # Acceso directo
-│       ├── Documents/            # Documentos del usuario
-│       ├── Downloads/            # Descargas
-│       ├── Pictures/             # Imágenes
-│       ├── Music/                # Música
-│       └── Videos/               # Videos
-├── bin/                         # (Sistema - no accesible)
-├── etc/                         # (Sistema - no accesible)
-└── tmp/                         # (Sistema - no accesible)
+│       ├── Desktop/              #  Escritorio (inicio)
+│       │   ├── Bienvenido.txt      # Archivo de bienvenida
+│       │   ├── Terminal.app        # Acceso directo
+│       │   └── ShawMe.app          # Acceso directo
+│       ├── Documents/             # Documentos del usuario
+│       ├── Downloads/             # Descargas
+│       ├── Pictures/              # Imágenes
+│       ├── Music/                 # Música
+│       └── Videos/                # Videos
+├── bin/                          # (Sistema - no accesible)
+├── etc/                          # (Sistema - no accesible)
+└── tmp/                          # (Sistema - no accesible)
 ```
 
 ### API del FileSystem
 
-```javascript
+```typescript
 // Instancia del FileSystem
 const fs = new FileSystem('usuario');
 
@@ -525,11 +564,11 @@ const home = fs.getUserHome();  // /home/usuario
 
 El sistema soporta 3 tipos:
 
-1. **`file`** - Archivos normales (.txt, etc.)
+1. **`file`** - Archivos normales (.txt, .js, .py, etc.)
 2. **`directory`** - Carpetas/directorios
 3. **`app`** - Aplicaciones ejecutables (.app)
 
-```javascript
+```typescript
 // Ejemplo de estructura de archivo
 {
   name: 'documento.txt',
@@ -551,21 +590,13 @@ El sistema soporta 3 tipos:
 }
 ```
 
-### Sandboxing y Seguridad
-
--  Usuarios **NO pueden salir** de `/home/[usuario]/`
--  Intentar `cd /` o `cd ../../../` queda bloqueado
--  Cada usuario tiene su **propio localStorage**: `shawos-fs-[usuario]`
--  Sistema de archivos **persistente** entre sesiones
--  Archivos aislados: **sin acceso cruzado** entre usuarios
-
 ---
 
 ##  Desarrollo de Aplicaciones
 
 ### Crear un Comando de Terminal
 
-Los comandos son módulos ES6 que exportan una función `run`:
+Los comandos son módulos JavaScript que exportan una función `run`:
 
 ```javascript
 // src/apps/bin/micomando.js
@@ -585,7 +616,7 @@ export async function run(args, context) {
 
   // Procesar comando
   const texto = args.join(' ');
-  context.stdout(` ${texto}`, 'success');
+  context.stdout(`✨ ${texto}`, 'success');
 
   // Interactuar con el FileSystem
   const files = context.fs.listFiles();
@@ -603,22 +634,26 @@ export const usage = 'micomando <texto> [opciones]';
 
 ### Crear una Aplicación GUI
 
-Las aplicaciones GUI son clases ES6:
+Las aplicaciones GUI son clases TypeScript:
 
-```javascript
-// src/apps/gui/MiApp.js
+```typescript
+// src/apps/gui/MiApp.ts
 
 export class MiApp {
-  constructor(container, fileSystem, shawOS) {
+  private container: HTMLElement;
+  private fs: any;
+  private shawOS: any;
+  private data: any[] = [];
+  
+  constructor(container: HTMLElement, fileSystem: any, shawOS: any) {
     this.container = container;
-    this.fs = fileSystem;           // FileSystem del usuario
-    this.shawOS = shawOS;           // Referencia al sistema
-    this.data = [];
+    this.fs = fileSystem;
+    this.shawOS = shawOS;
     
     this.render();
   }
 
-  render() {
+  private render(): void {
     this.container.innerHTML = `
       <div class="mi-app">
         <div class="app-header">
@@ -637,78 +672,79 @@ export class MiApp {
     this.loadData();
   }
 
-  attachEvents() {
+  private attachEvents(): void {
     const btn = document.getElementById('mi-boton');
-    const input = document.getElementById('mi-input');
+    const input = document.getElementById('mi-input') as HTMLInputElement;
     
-    btn.addEventListener('click', () => {
+    btn?.addEventListener('click', () => {
       const valor = input.value;
       
       // Guardar en el FileSystem
       this.fs.createFile('mi-dato.txt', valor);
       
       // Actualizar UI
-      document.getElementById('resultado').textContent = 
-        `Guardado: ${valor}`;
+      const resultado = document.getElementById('resultado');
+      if (resultado) {
+        resultado.textContent = `Guardado: ${valor}`;
+      }
       
-      // Actualizar desktop si estamos en Desktop
+      // Actualizar desktop
       if (this.shawOS) {
         this.shawOS.updateDesktopIcons();
       }
     });
   }
 
-  loadData() {
+  private loadData(): void {
     // Cargar datos del FileSystem
     const content = this.fs.readFile('mi-dato.txt');
     if (content) {
-      document.getElementById('resultado').textContent = 
-        `Último dato: ${content}`;
+      const resultado = document.getElementById('resultado');
+      if (resultado) {
+        resultado.textContent = `Último dato: ${content}`;
+      }
     }
   }
 
-  static appSettings(app) { // Ajustes para la ventana de la aplicación
+  static appSettings(app: any) {
     return {
-      window: ['miapp', 'Mi Aplicación', '', 700, 500], // ID, Título, Contenido, Ancho, Alto
-      needsSystem: false, // No necesita acceso al sistema para funcionar
-      // after: (data) => { ... } // Método que se ejecuta después de abrir la aplicación
-    }
+      window: ['miapp', 'Mi Aplicación', '', 700, 500],
+      needsSystem: false,
+    };
   }
 
-  static appFileOpenerSettings(app) { // Ajustes para la ventana de la aplicación cuando se abre un archivo
+  static appFileOpenerSettings(app: any) {
     return {
-      window: ['miapp-' + app.filename, 'Mi Aplicación - ' + app.filename, '', 700, 500], // ID, Título, Contenido, Ancho, Alto
-      needsSystem: false, // No necesita acceso al sistema para funcionar
-      // after: (data) => { ... } // Método que se ejecuta después de abrir la aplicación
-    }
+      window: ['miapp-' + app.filename, 'Mi Aplicación - ' + app.filename, '', 700, 500],
+      needsSystem: false,
+    };
   }
 }
 ```
 
 ### Registrar la Aplicación
 
-Añadir a `src/apps/handler/Apps.js`:
+Añadir a `src/apps/handler/Apps.ts`:
 
-```javascript
+```typescript
 // 1. Import
-import { MiApp } from './apps/gui/MiApp.js';
+import { MiApp } from '../gui/MiApp.js';
 
-// 2. Método para abrir
+// 2. Añadir al objeto Apps
 const Apps = {
-  //...
+  // ...
   'miapp': MiApp,
 }
 ```
 
 #### Registrar archivos que puede abrir la aplicación
 
-Añadir a `src/apps/handler/AppSupportedFiles.js`:
+Añadir a `src/apps/handler/AppSupportedFiles.ts`:
 
-```javascript
-// 1. Link archivos a apliación
+```typescript
 const AppSupportedFiles = {
-  //...
-  'txt': 'miapp',
+  // ...
+  'miext': 'miapp',
 }
 ```
 
@@ -718,7 +754,7 @@ En `index.html`:
 
 ```html
 <div class="menu-item" data-action="miapp">
-   Mi Aplicación
+  🎯 Mi Aplicación
 </div>
 ```
 
@@ -755,7 +791,7 @@ context.cd(path)         // Cambiar directorio
 context.ls()             // Listar archivos
 ```
 
-### Ejecución de Comandos
+###  Ejecución de Comandos
 
 ```javascript
 // Ejecutar otro comando
@@ -800,14 +836,114 @@ export async function run(args, context) {
   context.stdout(`Archivos encontrados: ${files.length}`, 'success');
   
   // Crear un archivo
-  context.
+  context.fs.createFile('test.txt', 'Contenido de prueba');
+  context.stdout('✅ Archivo creado', 'success');
+  
+  // Ejecutar otro comando
+  await context.exec('ls', []);
+  
+  return { success: true };
+}
 ```
+
 ---
 
- ### Información de contacto:
+## 🤝 Contribución
 
-Email: project.shaww@gmail.com
+¡Las contribuciones son bienvenidas! Si quieres contribuir a ShawOS:
 
---- 
+### Cómo Contribuir
 
-ShawOS - 2025
+1. **Fork** el repositorio
+2. Crea una **rama** para tu feature (`git checkout -b feature/AmazingFeature`)
+3. **Commit** tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un **Pull Request**
+
+### Guías de Contribución
+
+- **Código**: Sigue las convenciones de TypeScript y ES6+
+- **Commits**: Usa commits descriptivos y en inglés o Español
+- **Documentación**: Documenta nuevas funciones y aplicaciones
+- **Testing**: Asegúrate de que todo funciona antes de hacer PR
+- **Issues**: Reporta bugs con detalles y pasos para reproducir
+
+### Áreas donde puedes ayudar
+
+-  **Reportar bugs** y problemas
+-  **Sugerir nuevas features** o mejoras
+-  **Mejorar la documentación**
+-  **Crear nuevas aplicaciones GUI**
+-  **Añadir nuevos comandos de terminal**
+-  **Traducir el sistema a otros idiomas**
+-  **Desarrollar más juegos integrados**
+
+---
+
+##  Licencia
+
+Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
+
+```
+MIT License
+
+Copyright (c) 2025 Project Shaww
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+---
+
+##  Contacto
+
+### Project Shaww
+
+- **Email**: project.shaww@gmail.com
+- **GitHub**: [Project-Shaww](https://github.com/Project-Shaww)
+
+### Soporte
+
+Si tienes preguntas, problemas o sugerencias:
+
+1. **Issues**: Abre un issue en GitHub para reportar bugs
+2. **Discussions**: Usa GitHub Discussions para preguntas generales
+3. **Email**: Contacta directamente para colaboraciones
+
+---
+
+
+
+##  Estrellas
+
+Si te gusta ShawOS, ¡no olvides darle una ⭐ en GitHub!
+
+```bash
+   _____ _                     ____  _____ 
+  / ____| |                   / __ \/ ____|
+ | (___ | |__   __ ___      _| |  | | (___  
+  \___ \| '_ \ / _` \ \ /\ / / |  | |\___ \ 
+  ____) | | | | (_| |\ V  V /| |__| |____) |
+ |_____/|_| |_|\__,_| \_/\_/  \____/|_____/ 
+                                            
+          Sistema Operativo en el Navegador
+```
+
+---
+
+**ShawOS - 2025** 

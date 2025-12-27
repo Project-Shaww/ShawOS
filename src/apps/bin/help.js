@@ -20,20 +20,24 @@ export async function run(args, context) {
     { cmd: 'neofetch', desc: 'Muestra información del sistema' },
     { cmd: 'cowsay <text>', desc: 'Vaca ASCII que habla' },
     { cmd: 'figlet <text>', desc: 'Texto en ASCII art grande' },
-    { cmd: 'banner <text>', desc: 'Banner con tu texto' }
+    { cmd: 'banner <text>', desc: 'Banner con tu texto' },
+
+    { cmd: 'open-package <nombre>', desc: 'Abre un paquete instalado en una ventana' },
+    { cmd: 'spm install <paquete>', desc: 'Instala paquetes desde el repositorio Shaww' }
   ];
 
   context.stdout('Comandos disponibles:', 'success');
   help.forEach(({ cmd, desc }) => {
-    context.stdout(`  ${cmd.padEnd(20)} ${desc}`, 'info');
+    context.stdout(`  ${cmd.padEnd(22)} ${desc}`, 'info');
   });
+
   context.stdout('', 'info');
   context.stdout('Atajos:', 'success');
   context.stdout('  ↑/↓              Navegar historial', 'info');
   context.stdout('  Tab              Autocompletar', 'info');
   context.stdout('  Ctrl+L           Limpiar terminal', 'info');
   context.stdout('  Ctrl+C           Cancelar comando', 'info');
-  
+
   return { success: true };
 }
 
