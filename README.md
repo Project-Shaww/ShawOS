@@ -848,7 +848,7 @@ export async function run(args, context) {
 
 ---
 
-## 🤝 Contribución
+##  Contribución
 
 ¡Las contribuciones son bienvenidas! Si quieres contribuir a ShawOS:
 
