@@ -228,7 +228,6 @@ async function installZipPackage(zipData: Uint8Array, packageName: string, conte
 
 async function installJsPackage(jsCode: string, packageName: string, context: any) {
   if (!jsCode || jsCode.length === 0 || jsCode.trim().startsWith('<')) {
-    context.stderr(`El paquete "${packageName}" no es válido`);
     return false;
   }
 
@@ -255,7 +254,6 @@ async function installJsPackage(jsCode: string, packageName: string, context: an
 
 async function installTsPackage(tsCode: string, packageName: string, context: any) {
   if (!tsCode || tsCode.length === 0 || tsCode.trim().startsWith('<')) {
-    context.stderr(`El paquete "${packageName}" no es válido`);
     return false;
   }
 
@@ -313,13 +311,13 @@ export async function run(args: string[], context: any) {
   try {
     context.stdout(`🔍 Buscando ${packageName}...`, 'info');
     
-    // Intentar primero con .js
     let jsUrl = `${REPO_URL}/${packageName}.js`;
-    let response = await fetch(jsUrl);
+    let jsResponse = null;
     
-    if (response.ok) {
-      // Es un .js
-      const jsCode = await response.text();
+    try { jsResponse = await fetch(jsUrl); } catch (fetchError) { console.log('[SPM] Network error fetching .js:', fetchError); }
+    
+    if (jsResponse && jsResponse.ok) {
+      const jsCode = await jsResponse.text();
       const success = await installJsPackage(jsCode, packageName, context);
       
       if (success) {
@@ -328,18 +326,17 @@ export async function run(args: string[], context: any) {
           `Para abrirlo ejecuta: spm run ${packageName}`,
           'info'
         );
+        return { success };
       }
-      
-      return { success };
     }
 
-    // Intentar con .ts
     let tsUrl = `${REPO_URL}/${packageName}.ts`;
-    response = await fetch(tsUrl);
+    let tsResponse = null;
     
-    if (response.ok) {
-      // Es un .ts
-      const tsCode = await response.text();
+    try { tsResponse = await fetch(tsUrl); } catch (fetchError) { console.log('[SPM] Network error fetching .ts:', fetchError); }
+    
+    if (tsResponse && tsResponse.ok) {
+      const tsCode = await tsResponse.text();
       const success = await installTsPackage(tsCode, packageName, context);
       
       if (success) {
@@ -348,12 +345,10 @@ export async function run(args: string[], context: any) {
           `Para abrirlo ejecuta: spm run ${packageName}`,
           'info'
         );
+        return { success };
       }
-      
-      return { success };
     }
     
-    // Si no es .js ni .ts, intentar con .zip
     const zipUrl = `${REPO_URL}/${packageName}.zip`;
     const zipData = await downloadWithProgress(zipUrl, context, packageName);
     
@@ -363,9 +358,7 @@ export async function run(args: string[], context: any) {
       return { success: false };
     }
     
-    // Verificar que sea un ZIP válido
     if (!isZipFile(zipData)) {
-      // Debug: mostrar los primeros bytes
       const preview = Array.from(zipData.slice(0, 10)).map(b => b.toString(16).padStart(2, '0')).join(' ');
       context.stderr(`El archivo "${packageName}.zip" no es un ZIP válido`);
       context.stdout(`Primeros bytes: ${preview}`, 'error');
@@ -373,7 +366,6 @@ export async function run(args: string[], context: any) {
       return { success: false };
     }
     
-    // Es un ZIP válido
     const success = await installZipPackage(zipData, packageName, context);
     
     if (success) {
@@ -382,9 +374,11 @@ export async function run(args: string[], context: any) {
         `Para abrirlo ejecuta: spm run ${packageName}`,
         'info'
       );
+      return { success };
     }
-    
-    return { success };
+
+    context.stderr(`El paquete "${packageName}" no es válido`);
+    return { success: false };
 
   } catch (error) {
     context.stderr(`No se ha podido instalar "${packageName}"`);
