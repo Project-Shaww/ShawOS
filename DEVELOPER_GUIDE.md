@@ -122,6 +122,7 @@ shawos/
 │   │   │   ├── tree.js
 │   │   │   ├── uname.js
 │   │   │   ├── whoami.js
+│   │   │   ├── wallpaper.js
 │   │   │   ├── spm.js             # Package Manager
 │   │   │   └── open-package.js
 │   │   │

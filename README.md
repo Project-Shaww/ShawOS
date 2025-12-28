@@ -204,6 +204,14 @@ reboot      # Reinicia el sistema
 shutdown    # Apaga el sistema
 ```
 
+#### Personalización
+```bash
+wallpaper -ls           # Lista fondos disponibles
+wallpaper -s <nombre>   # Cambia el fondo de pantalla
+wallpaper -c            # Muestra fondo actual
+wallpaper -r            # Restaura fondo predeterminado
+```
+
 #### Utilidades
 ```bash
 echo        # Imprime texto

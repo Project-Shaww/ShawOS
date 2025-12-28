@@ -28,7 +28,7 @@ export class ShawOS {
         this.setupUserInfo();
         this.fileSystem.onFileCreated = (file: any) => this.addDesktopIcon(file);
     
-        // IMPORTANTE: Actualizar escritorio después de un pequeño delay
+        // Actualizar escritorio después de un pequeño delay
         // para asegurar que el FileSystem esté completamente inicializado
         setTimeout(() => {
             console.log('🔄 Actualizando iconos del escritorio...');
@@ -44,13 +44,26 @@ export class ShawOS {
     }
 
     loadBackground() {
-        fetch('/backgrounds/fondo.webp')
+        // Cargar el fondo guardado o usar el predeterminado
+        const savedWallpaper = localStorage.getItem('shawos-wallpaper') || 'fondo';
+        const wallpaperUrl = `/backgrounds/${savedWallpaper}.webp`;
+        
+        fetch(wallpaperUrl)
             .then(response => {
                 if (response.ok) {
+                    document.body.style.backgroundImage = `url(${wallpaperUrl})`;
+                    console.log('🖼️ Fondo cargado:', savedWallpaper);
+                } else {
+                    // Si falla, usar el predeterminado
                     document.body.style.backgroundImage = 'url(/backgrounds/fondo.webp)';
+                    console.warn('⚠️ Fondo no encontrado, usando predeterminado');
                 }
             })
-            .catch(() => {});
+            .catch(() => {
+                // Si hay error, usar el predeterminado
+                document.body.style.backgroundImage = 'url(/backgrounds/fondo.webp)';
+                console.warn('⚠️ Error al cargar fondo, usando predeterminado');
+            });
     }
 
     setupDesktop() {

@@ -21,14 +21,14 @@ export async function run(args: string[], context: any) {
     { cmd: 'cowsay <text>', desc: 'Vaca ASCII que habla' },
     { cmd: 'figlet <text>', desc: 'Texto en ASCII art grande' },
     { cmd: 'banner <text>', desc: 'Banner con tu texto' },
-
+    { cmd: 'wallpaper [-h|-ls|-s|-c|-r]', desc: 'Gestor de fondos de pantalla' },
     { cmd: 'open-package <nombre>', desc: 'Abre un paquete instalado en una ventana' },
     { cmd: 'spm install <paquete>', desc: 'Instala paquetes desde el repositorio Shaww' }
   ];
 
   context.stdout('Comandos disponibles:', 'success');
   help.forEach(({ cmd, desc }) => {
-    context.stdout(`  ${cmd.padEnd(22)} ${desc}`, 'info');
+    context.stdout(`  ${cmd.padEnd(27)} ${desc}`, 'info');
   });
 
   context.stdout('', 'info');
