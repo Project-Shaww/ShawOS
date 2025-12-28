@@ -33,6 +33,7 @@ export class CodeEditor {
             </div>
         `;
         this.attachEvents();
+        this.focusInput();
     }
 
     attachEvents() {
@@ -45,6 +46,14 @@ export class CodeEditor {
                 this.content = textarea.value;
             } else {
                 this.content = e.target.value;
+            }
+        });
+
+        // Event listener para Ctrl+S (guardar)
+        textarea.addEventListener('keydown', (e: KeyboardEvent) => {
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                this.fs.writeFile(this.currentFile, this.content);
             }
         });
 
@@ -69,6 +78,23 @@ export class CodeEditor {
                 await DialogManager.alert('Error', 'Archivo no encontrado');
             }
         });
+
+        // Auto-focus en el textarea cuando se hace click en el container
+        this.container.addEventListener('click', () => {
+            this.focusInput();
+        });
+    }
+
+    focusInput() {
+        const textarea = this.container.getElementById('code-editor-textarea');
+        if (textarea) {
+            textarea.focus();
+            // Mover cursor al final
+            (textarea as HTMLTextAreaElement).setSelectionRange(
+                (textarea as HTMLTextAreaElement).value.length,
+                (textarea as HTMLTextAreaElement).value.length
+            );
+        }
     }
 
     setFile(filename: string) {
