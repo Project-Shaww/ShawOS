@@ -40,10 +40,20 @@ export class ProcessManager {
           return { success: true, result };
         }
       } catch (importError) {
-        return { 
-          success: false, 
-          error: `bash: ${command}: comando no encontrado` 
-        };
+        try {
+          const module = await import(`../apps/bin/${command}.ts`);
+          this.registerCommand(command, module);
+          
+          if (typeof module.run === 'function') {
+            const result = await module.run(args, context);
+            return { success: true, result };
+          }
+        } catch (importError) {
+          return { 
+            success: false, 
+            error: `bash: ${command}: comando no encontrado` 
+          };
+        }
       }
 
       return { 
