@@ -6,19 +6,23 @@ export class AppHandler {
     fs: FileSystem;
     shawOS: ShawOS;
     appInstances: Map<string, any>;
+    apps: any;
+    appSupportedFiles: any;
     constructor(windowManager: WindowManager, fileSystem: FileSystem, shawOS: ShawOS) {
         this.windowManager = windowManager;
         this.fs = fileSystem;
         this.shawOS = shawOS;
         this.appInstances = new Map<string, any>();
+        this.apps = Apps;
+        this.appSupportedFiles = AppSupportedFiles;
     }
 
     getAppClassByName(appName: string) {
-        return (Apps as any)[appName] || null;
+        return (this.apps as any)[appName] || null;
     }
 
     getAppClassByFileType(fileType: string) {
-        return this.getAppClassByName((AppSupportedFiles as any)[fileType]) || null;
+        return this.getAppClassByName((this.appSupportedFiles as any)[fileType]) || null;
     }
 
     openApp(AppClass: any, appSettings: any, after = {}) {

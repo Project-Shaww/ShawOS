@@ -48,16 +48,17 @@ export async function run(args: string[], context: any) {
     ];
     
     // Crear ventana usando el WindowManager del contexto
-    const win = context.terminal.shawOS.windowManager.createWindow(id, title, content, width, height);
-    const container = win.querySelector('.window-content');
+    const container = context.terminal.shawOS.windowManager.createWindow(id, title, content, width, height, () => { context.terminal.shawOS.appHandler.appInstances.delete(id); });
     
     // Instanciar la app
-    new PackageClass(
-      container,
-      context.fs,
-      context.terminal.shawOS
-    );
+    var appInstance;
+    if (settings.needsSystem) { appInstance = new PackageClass(container, context.fs, context.terminal.shawOS); }
+    else { appInstance = new PackageClass(container, context.fs); }
     
+    context.terminal.shawOS.appHandler.appInstances.set(id, appInstance)
+    
+    if (!context.terminal.shawOS.appHandler.apps.has(packageName)) { context.terminal.shawOS.appHandler.apps.set(packageName, PackageClass); }
+
     context.stdout(`âœ… Paquete "${packageName}" abierto`, 'success');
     return { success: true };
     
