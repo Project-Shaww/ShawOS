@@ -987,7 +987,7 @@ open-package nombre-paquete
 
 ## Crear tu Propio Paquete
 
-### Opción 1: Paquete .js
+### Opción 1: Paquete .js o .ts
 
 Ideal para aplicaciones pequeñas o comandos que no necesitan recursos externos.
 
@@ -1037,7 +1037,71 @@ export class MiPaquete {
   static appSettings(app) {
     return {
       window: ['mipaquete', 'Mi Paquete', '', 600, 400],
-      needsSystem: false,
+      needsSystem: true,
+    };
+  }
+}
+
+/**
+ * SI ES COMANDO (type: 'command')
+ */
+export async function run(args, context) {
+  context.stdout('Hola desde mi comando', 'success');
+  return { success: true };
+}
+
+export const description = 'Mi comando personalizado';
+export const usage = 'mi-comando [args]';
+```
+
+```typescript
+// mi-paquete.ts
+
+/**
+ * METADATOS DEL PAQUETE (OBLIGATORIO)
+ */
+export const packageInfo = {
+  name: 'mi-paquete',           // Nombre único del paquete
+  version: '1.0.0',             // Versión semántica
+  author: 'Tu Nombre',          // Autor
+  description: 'Descripción',   // Descripción breve
+  type: 'gui' // o 'command'    // Tipo de paquete
+};
+
+/**
+ * SI ES APLICACIÓN GUI (type: 'gui')
+ */
+export class MiPaquete {
+  container: any
+  fs: any
+  shawOS: any
+  constructor(container: any, fileSystem: any, shawOS: any) {
+    this.container = container;
+    this.fs = fileSystem;
+    this.shawOS = shawOS;
+    
+    this.render();
+  }
+  
+  render() {
+    this.container.innerHTML = `
+      <div class="mi-app">
+        <style>
+          .mi-app {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+          }
+        </style>
+        <h1>Hola desde mi paquete</h1>
+        <p>Esta es mi aplicación personalizada</p>
+      </div>
+    `;
+  }
+  
+  static appSettings(app) {
+    return {
+      window: ['mipaquete', 'Mi Paquete', '', 600, 400],
+      needsSystem: true,
     };
   }
 }
@@ -1263,12 +1327,12 @@ export const description = 'Muestra el clima de una ciudad';
 export const usage = 'weather [ciudad]';
 ```
 
-#### Publicar tu Paquete .js
+#### Publicar tu Paquete .js o .ts
 
 Para que tu paquete esté disponible en el repositorio oficial:
 
-1. Sube tu archivo `.js` al repositorio de ShawOS
-2. El archivo debe estar en: `https://shaww.duckdns.org/packages/nombre-paquete.js`
+1. Sube tu archivo `.js` o `.ts` al repositorio de ShawOS
+2. El archivo debe estar en: `https://shaww.duckdns.org/packages/nombre-paquete.js` o `https://shaww.duckdns.org/packages/nombre-paquete.ts`
 3. Los usuarios podrán instalarlo con: `spm install nombre-paquete`
 
 ---

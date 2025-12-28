@@ -265,7 +265,13 @@ async function installTsPackage(tsCode: string, packageName: string, context: an
   );
 
   try {
-    // Usar Function cuando averigue donde se hace el install
+    const fn = new Function(tsCode);
+    fn();
+    context.stdout(
+      `Paquete "${packageName}" instalado correctamente`,
+      'success'
+    );
+    return true;
   } catch (evalError) {
     context.stderr(
       `Error al ejecutar el paquete: ${(evalError as Error).message}`
@@ -280,7 +286,7 @@ export async function run(args: string[], context: any) {
     context.stdout('SPM — Shaww Package Manager', 'info');
     context.stdout('Uso: spm install <package>', 'info');
     context.stdout('');
-    context.stdout('Soporta archivos .js y .zip', 'info');
+    context.stdout('Soporta archivos .js, .ts y .zip', 'info');
     context.stdout('Los .zip se descomprimen automáticamente en memoria', 'info');
     return { success: false };
   }
