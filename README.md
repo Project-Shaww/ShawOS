@@ -79,17 +79,6 @@ npm run dev
 
 # El servidor se iniciará en http://localhost:5173
 ```
-
-### Producción
-
-```bash
-# Compilar para producción
-npm run build
-
-# Vista previa de la build
-npm run preview
-```
-
 ---
 
 ##  Sistema de Usuarios
