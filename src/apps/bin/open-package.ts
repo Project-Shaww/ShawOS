@@ -50,14 +50,10 @@ export async function run(args: string[], context: any) {
     // Crear ventana usando el WindowManager del contexto
     const container = context.terminal.shawOS.windowManager.createWindow(id, title, content, width, height, () => { context.terminal.shawOS.appHandler.appInstances.delete(id); });
     
-
-    const packageContext = null //Rexy TODO: Implementar contexto de paquete
     // Instanciar la app
-    let appInstance
-    try { appInstance = new PackageClass(container, context.fs, context.terminal.shawOS, packageContext); } catch (error) { 
-      try { appInstance = new PackageClass(container, context.fs, context.terminal.shawOS); } catch (error) { 
-        try { appInstance = new PackageClass(container); } catch (error) { return { success: false }; }
-      }
+    let appInstance 
+    try { appInstance = new PackageClass(container, context.fs, context.terminal.shawOS, ); } catch (error) { 
+      try { appInstance = new PackageClass(container); } catch (error) { return { success: false }; }
     }
     
     context.terminal.shawOS.appHandler.appInstances.set(id, appInstance)

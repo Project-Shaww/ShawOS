@@ -110,6 +110,7 @@ async function installZipPackage(zipData: Uint8Array, packageName: string, conte
   if (!((window as any).ShawOSPackageFiles)[packageName]) {
     (window as any).ShawOSPackageFiles[packageName] = {};
   }
+  (window as any).getPackageFile = (packageName: string, filename: string, returnAll: boolean = false) => { const packageFiles = (window as any).ShawOSPackageFiles[packageName]; if (!packageFiles) return null; const packageFile = packageFiles[filename]; if (!packageFile) return null; if (returnAll) return packageFile; return packageFile.content; }
   
   context.stdout(`Procesando ${files.length} archivos...`, 'info');
   
