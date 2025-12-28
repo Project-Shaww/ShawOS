@@ -1,5 +1,5 @@
-// src/apps/bin/date.js
-export async function run(args, context) {
+// src/apps/bin/date.ts
+export async function run(args: string[], context: any) {
   const dateStr = new Date().toLocaleString('es-ES', {
     weekday: 'long',
     year: 'numeric',

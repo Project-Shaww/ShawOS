@@ -1,5 +1,5 @@
-// src/apps/bin/clear.js
-export async function run(args, context) {
+// src/apps/bin/clear.ts
+export async function run(args: string[], context: any) {
   context.clear();
   return { success: true, skipNewline: true };
 }

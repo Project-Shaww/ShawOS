@@ -1,5 +1,5 @@
-// src/apps/bin/cat.js
-export async function run(args, context) {
+// src/apps/bin/cat.ts
+export async function run(args: string[], context: any) {
   if (args.length === 0) {
     context.stderr('Uso: cat <archivo>');
     return { success: false };
@@ -7,7 +7,7 @@ export async function run(args, context) {
 
   const content = context.fs.readFile(args[0]);
   if (content !== null) {
-    content.split('\n').forEach(line => {
+    content.split('\n').forEach((line: string) => {
       context.stdout(line, 'info');
     });
     return { success: true };

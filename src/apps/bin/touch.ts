@@ -1,5 +1,5 @@
-// src/apps/bin/touch.js
-export async function run(args, context) {
+// src/apps/bin/touch.ts
+export async function run(args: string[], context: any) {
   if (args.length === 0) {
     context.stderr('Uso: touch <nombre>');
     return { success: false };

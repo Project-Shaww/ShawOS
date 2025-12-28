@@ -1,5 +1,5 @@
-// src/apps/bin/figlet.js
-export async function run(args, context) {
+// src/apps/bin/figlet.ts
+export async function run(args: string[], context: any) {
   const text = args.join(' ').toUpperCase() || 'SHAWOS';
   const letters = {
     'A': ['  ▄▀▀▄  ', ' █▄▄█ ', ' █  █ '],
@@ -43,7 +43,7 @@ export async function run(args, context) {
 
   const lines = ['', '', ''];
   for (const char of text) {
-    const letter = letters[char] || letters[' '];
+    const letter = (letters as any)[char] || letters[' '];
     lines[0] += letter[0];
     lines[1] += letter[1];
     lines[2] += letter[2];

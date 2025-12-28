@@ -1,5 +1,5 @@
-// src/apps/bin/help.js
-export async function run(args, context) {
+// src/apps/bin/help.ts
+export async function run(args: string[], context: any) {
   const help = [
     { cmd: 'help, man', desc: 'Muestra esta ayuda' },
     { cmd: 'ls', desc: 'Lista archivos y directorios' },

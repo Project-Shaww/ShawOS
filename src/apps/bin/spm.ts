@@ -2,25 +2,25 @@
 
 /**
  * SPM - Shaww Package Manager
- * Descarga e instala paquetes .js o .zip desde el repositorio remoto de Shaww
+ * Descarga e instala paquetes .js, .ts o .zip desde el repositorio remoto de Shaww
  */
 
 const REPO_URL = 'https://shaww.duckdns.org/packages';
 
 // Importar JSZip desde CDN si no está disponible
 async function ensureJSZip() {
-  if (window.JSZip) return window.JSZip;
+  if ((window as any).JSZip) return (window as any).JSZip;
   
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-    script.onload = () => resolve(window.JSZip);
+    script.onload = () => resolve((window as any).JSZip);
     script.onerror = () => reject(new Error('No se pudo cargar JSZip'));
     document.head.appendChild(script);
   });
 }
 
-function formatBytes(bytes) {
+function formatBytes(bytes: number) {
   if (bytes === 0) return '0 B';
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
@@ -28,7 +28,7 @@ function formatBytes(bytes) {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 
-async function downloadWithProgress(url, context, packageName) {
+async function downloadWithProgress(url: string, context: any, packageName: string) {
   const response = await fetch(url);
   
   if (!response.ok) {
@@ -36,7 +36,7 @@ async function downloadWithProgress(url, context, packageName) {
   }
 
   const contentLength = response.headers.get('content-length');
-  const total = parseInt(contentLength, 10);
+  const total = parseInt(contentLength as string, 10);
   
   let loaded = 0;
   let loadingLine = null;
@@ -46,11 +46,11 @@ async function downloadWithProgress(url, context, packageName) {
     loadingLine = context.terminal.output.lastChild;
   }
 
-  const reader = response.body.getReader();
+  const reader = response.body?.getReader();
   const chunks = [];
 
   while (true) {
-    const { done, value } = await reader.read();
+    const { done, value } = await reader?.read() || { done: true, value: null };
     
     if (done) break;
     
@@ -82,13 +82,13 @@ async function downloadWithProgress(url, context, packageName) {
   return result;
 }
 
-function isZipFile(data) {
+function isZipFile(data: Uint8Array) {
   // Verificar firma ZIP (PK\x03\x04)
   if (data.length < 4) return false;
   return data[0] === 0x50 && data[1] === 0x4B && data[2] === 0x03 && data[3] === 0x04;
 }
 
-async function installZipPackage(zipData, packageName, context) {
+async function installZipPackage(zipData: Uint8Array, packageName: string, context: any) {
   context.stdout('Descomprimiendo paquete...', 'info');
   
   const JSZip = await ensureJSZip();
@@ -106,9 +106,9 @@ async function installZipPackage(zipData, packageName, context) {
   let mainJsCode = null;
   
   // Crear namespace para archivos del paquete
-  if (!window.ShawOSPackageFiles) window.ShawOSPackageFiles = {};
-  if (!window.ShawOSPackageFiles[packageName]) {
-    window.ShawOSPackageFiles[packageName] = {};
+  if (!((window as any).ShawOSPackageFiles)) (window as any).ShawOSPackageFiles = {};
+  if (!((window as any).ShawOSPackageFiles)[packageName]) {
+    (window as any).ShawOSPackageFiles[packageName] = {};
   }
   
   context.stdout(`Procesando ${files.length} archivos...`, 'info');
@@ -129,7 +129,7 @@ async function installZipPackage(zipData, packageName, context) {
     }
     
     // Detectar tipo de archivo
-    const ext = filename.split('.').pop().toLowerCase();
+    const ext = filename.split('.').pop()?.toLowerCase();
     
     if (ext === 'js') {
       const content = await zip.files[filename].async('text');
@@ -140,12 +140,12 @@ async function installZipPackage(zipData, packageName, context) {
       }
       
       // Guardar en memoria
-      window.ShawOSPackageFiles[packageName][filename] = {
+      (window as any).ShawOSPackageFiles[packageName][filename] = {
         type: 'text',
         content: content
       };
     } 
-    else if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext)) {
+    else if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext || '')) {
       const blob = await zip.files[filename].async('blob');
       const dataUrl = await new Promise(resolve => {
         const reader = new FileReader();
@@ -153,12 +153,12 @@ async function installZipPackage(zipData, packageName, context) {
         reader.readAsDataURL(blob);
       });
       
-      window.ShawOSPackageFiles[packageName][filename] = {
+      (window as any).ShawOSPackageFiles[packageName][filename] = {
         type: 'image',
         content: dataUrl
       };
     }
-    else if (['mp3', 'wav', 'ogg'].includes(ext)) {
+    else if (['mp3', 'wav', 'ogg'].includes(ext || '')) {
       const blob = await zip.files[filename].async('blob');
       const dataUrl = await new Promise(resolve => {
         const reader = new FileReader();
@@ -166,15 +166,15 @@ async function installZipPackage(zipData, packageName, context) {
         reader.readAsDataURL(blob);
       });
       
-      window.ShawOSPackageFiles[packageName][filename] = {
+      (window as any).ShawOSPackageFiles[packageName][filename] = {
         type: 'audio',
         content: dataUrl
       };
     }
-    else if (['json', 'txt', 'html', 'css'].includes(ext)) {
+    else if (['json', 'txt', 'html', 'css'].includes(ext || '')) {
       const content = await zip.files[filename].async('text');
       
-      window.ShawOSPackageFiles[packageName][filename] = {
+      (window as any).ShawOSPackageFiles[packageName][filename] = {
         type: 'text',
         content: content
       };
@@ -183,7 +183,7 @@ async function installZipPackage(zipData, packageName, context) {
       // Binario genérico
       const content = await zip.files[filename].async('uint8array');
       
-      window.ShawOSPackageFiles[packageName][filename] = {
+      (window as any).ShawOSPackageFiles[packageName][filename] = {
         type: 'binary',
         content: content
       };
@@ -203,8 +203,8 @@ async function installZipPackage(zipData, packageName, context) {
     
     try {
       // Crear función helper para acceder a archivos del paquete
-      window.getPackageFile = (pkg, filename) => {
-        return window.ShawOSPackageFiles[pkg]?.[filename]?.content;
+      (window as any).getPackageFile = (pkg: string, filename: string) => {
+        return (window as any).ShawOSPackageFiles[pkg]?.[filename]?.content;
       };
       
       eval(mainJsCode);
@@ -215,7 +215,7 @@ async function installZipPackage(zipData, packageName, context) {
       return true;
     } catch (evalError) {
       context.stderr(
-        `Error al ejecutar el paquete: ${evalError.message}`
+        `Error al ejecutar el paquete: ${(evalError as Error).message}`
       );
       console.error('SPM eval error:', evalError);
       return false;
@@ -226,7 +226,7 @@ async function installZipPackage(zipData, packageName, context) {
   }
 }
 
-async function installJsPackage(jsCode, packageName, context) {
+async function installJsPackage(jsCode: string, packageName: string, context: any) {
   if (!jsCode || jsCode.length === 0 || jsCode.trim().startsWith('<')) {
     context.stderr(`El paquete "${packageName}" no es válido`);
     return false;
@@ -246,14 +246,36 @@ async function installJsPackage(jsCode, packageName, context) {
     return true;
   } catch (evalError) {
     context.stderr(
-      `Error al ejecutar el paquete: ${evalError.message}`
+      `Error al ejecutar el paquete: ${(evalError as Error).message}`
     );
     console.error('SPM eval error:', evalError);
     return false;
   }
 }
 
-export async function run(args, context) {
+async function installTsPackage(tsCode: string, packageName: string, context: any) {
+  if (!tsCode || tsCode.length === 0 || tsCode.trim().startsWith('<')) {
+    context.stderr(`El paquete "${packageName}" no es válido`);
+    return false;
+  }
+
+  context.stdout(
+    `Paquete descargado correctamente (${formatBytes(tsCode.length)})`,
+    'success'
+  );
+
+  try {
+    // Usar Function cuando averigue donde se hace el install
+  } catch (evalError) {
+    context.stderr(
+      `Error al ejecutar el paquete: ${(evalError as Error).message}`
+    );
+    console.error('SPM eval error:', evalError);
+    return false;
+  }
+}
+
+export async function run(args: string[], context: any) {
   if (args.length === 0 || args[0] !== 'install') {
     context.stdout('SPM — Shaww Package Manager', 'info');
     context.stdout('Uso: spm install <package>', 'info');
@@ -292,8 +314,28 @@ export async function run(args, context) {
       
       return { success };
     }
+
+    // Intentar con .ts
+    let tsUrl = `${REPO_URL}/${packageName}.ts`;
+    response = await fetch(tsUrl);
     
-    // Si no es .js, intentar con .zip
+    if (response.ok) {
+      // Es un .ts
+      const tsCode = await response.text();
+      const success = await installTsPackage(tsCode, packageName, context);
+      
+      if (success) {
+        context.stdout('');
+        context.stdout(
+          `Para abrirlo ejecuta: open-package ${packageName}`,
+          'info'
+        );
+      }
+      
+      return { success };
+    }
+    
+    // Si no es .js ni .ts, intentar con .zip
     const zipUrl = `${REPO_URL}/${packageName}.zip`;
     const zipData = await downloadWithProgress(zipUrl, context, packageName);
     
@@ -328,7 +370,7 @@ export async function run(args, context) {
 
   } catch (error) {
     context.stderr(`No se ha podido instalar "${packageName}"`);
-    context.stdout(`Error: ${error.message}`, 'error');
+    context.stdout(`Error: ${(error as Error).message}`, 'error');
     console.error('SPM error:', error);
     return { success: false };
   }

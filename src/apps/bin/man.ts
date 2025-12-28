@@ -1,5 +1,5 @@
-// src/apps/bin/man.js
-export async function run(args, context) {
+// src/apps/bin/man.ts
+export async function run(args: string[], context: any) {
   // man is an alias for help
   return await context.exec('help', args);
 }

@@ -1,5 +1,5 @@
-// src/apps/bin/rm.js
-export async function run(args, context) {
+// src/apps/bin/rm.ts
+export async function run(args: string[], context: any) {
   if (args.length === 0) {
     context.stderr('Uso: rm <nombre>');
     return { success: false };

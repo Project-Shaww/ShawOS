@@ -1,7 +1,7 @@
-// src/apps/bin/shutdown.js
+// src/apps/bin/shutdown.ts
 import { BootScreen } from '../../boot/BootScreen.js';
 
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   const now = args.includes('now');
   
   if (!now) {

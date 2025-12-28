@@ -1,5 +1,5 @@
-// src/apps/bin/ls.js
-export async function run(args, context) {
+// src/apps/bin/ls.ts
+export async function run(args: string[], context: any) {
   const files = context.ls();
 
   if (files.length === 0) {
@@ -10,7 +10,7 @@ export async function run(args, context) {
   const showDetailed = args.includes('-l');
 
   if (showDetailed) {
-    files.forEach(f => {
+    files.forEach((f: any) => {
       const type = f.type === 'directory' ? 'd' : '-';
       const perms = f.type === 'directory' ? 'rwxr-xr-x' : 'rw-r--r--';
       const size = f.size.toString().padStart(8);
@@ -23,10 +23,10 @@ export async function run(args, context) {
       );
     });
   } else {
-    const dirs = files.filter(f => f.type === 'directory')
-                      .map(f => `<span class="dir-color">${f.name}</span>`);
-    const regularFiles = files.filter(f => f.type === 'file')
-                               .map(f => f.name);
+    const dirs = files.filter((f: any) => f.type === 'directory')
+                      .map((f: any) => `<span class="dir-color">${f.name}</span>`);
+    const regularFiles = files.filter((f: any) => f.type === 'file')
+                               .map((f: any) => f.name);
 
     const allItems = [...dirs, ...regularFiles];
     const columns = 4;

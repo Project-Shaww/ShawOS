@@ -1,7 +1,7 @@
-// src/apps/bin/reboot.js
+// src/apps/bin/reboot.ts
 import { BootScreen } from '../../boot/BootScreen.js';
 
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   const now = args.includes('now') || args.length === 0;
   
   if (!now) {

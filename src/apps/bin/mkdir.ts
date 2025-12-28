@@ -1,5 +1,5 @@
-// src/apps/bin/mkdir.js
-export async function run(args, context) {
+// src/apps/bin/mkdir.ts
+export async function run(args: string[], context: any) {
   if (args.length === 0) {
     context.stderr('Uso: mkdir <nombre>');
     return { success: false };

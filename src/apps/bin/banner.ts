@@ -1,5 +1,5 @@
-// src/apps/bin/banner.js
-export async function run(args, context) {
+// src/apps/bin/banner.ts
+export async function run(args: string[], context: any) {
   const text = args.join(' ').toUpperCase() || 'SHAWOS';
   const width = text.length * 8 + 4;
 

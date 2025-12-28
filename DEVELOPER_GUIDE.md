@@ -261,17 +261,17 @@ const home = fs.getUserHome();  // /home/usuario
 
 ### Estructura Básica
 
-Los comandos son módulos JavaScript que exportan una función `run`:
+Los comandos son módulos JavaScript o TypeScript que exportan una función `run`:
 
-```javascript
-// src/apps/bin/micomando.js
+```typescript
+// src/apps/bin/micomando.ts
 
 /**
  * Mi comando personalizado
  * @param {Array} args - Argumentos del comando
  * @param {Object} context - Contexto con APIs del sistema
  */
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   // Tu código aquí
   
   return { success: true };
@@ -284,10 +284,10 @@ export const usage = 'micomando <arg1> [arg2] [opciones]';
 
 ### Ejemplo Completo: Comando Simple
 
-```javascript
-// src/apps/bin/hello.js
+```typescript
+// src/apps/bin/hello.ts
 
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   // Validar argumentos
   if (args.length === 0) {
     context.stderr('Error: Debes proporcionar un nombre');
@@ -310,14 +310,14 @@ export const usage = 'hello <nombre>';
 
 ### Ejemplo Avanzado: Comando con FileSystem
 
-```javascript
-// src/apps/bin/count.js
+```typescript
+// src/apps/bin/count.ts
 
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   // Contar archivos en el directorio actual
   const files = context.fs.listFiles();
-  const totalFiles = files.filter(f => f.type === 'file').length;
-  const totalDirs = files.filter(f => f.type === 'directory').length;
+  const totalFiles = files.filter((f: any) => f.type === 'file').length;
+  const totalDirs = files.filter((f: any) => f.type === 'directory').length;
   
   // Mostrar resultados
   context.stdout('Estadísticas del directorio:', 'info');
@@ -328,7 +328,7 @@ export async function run(args, context) {
   // Si se pasa -v, mostrar lista
   if (args.includes('-v')) {
     context.stdout('\nLista detallada:', 'info');
-    files.forEach(file => {
+    files.forEach((file: any) => {
       const icon = file.type === 'directory' ? '[DIR]' : '[FILE]';
       context.stdout(`  ${icon} ${file.name}`);
     });
@@ -343,10 +343,10 @@ export const usage = 'count [-v]';
 
 ### Ejemplo: Comando que Crea Archivos
 
-```javascript
-// src/apps/bin/template.js
+```typescript
+// src/apps/bin/template.ts
 
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   if (args.length === 0) {
     context.stderr('Error: Especifica el tipo de template');
     context.stdout('Uso: template <html|js|py>');
@@ -358,7 +358,7 @@ export async function run(args, context) {
   let nombre = '';
 
   // Generar template según tipo
-  switch(tipo) {
+  switch((tipo: string)) {
     case 'html':
       nombre = 'index.html';
       contenido = `<!DOCTYPE html>
@@ -419,10 +419,10 @@ export const usage = 'template <html|js|py>';
 
 ### Ejemplo: Comando Interactivo
 
-```javascript
-// src/apps/bin/quiz.js
+```typescript
+// src/apps/bin/quiz.ts
 
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   const preguntas = [
     {
       pregunta: '¿Cuál es la capital de España?',
@@ -987,7 +987,7 @@ open-package nombre-paquete
 
 ## Crear tu Propio Paquete
 
-### Opción 1: Paquete .js 
+### Opción 1: Paquete .js
 
 Ideal para aplicaciones pequeñas o comandos que no necesitan recursos externos.
 

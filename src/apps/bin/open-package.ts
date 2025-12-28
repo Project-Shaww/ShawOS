@@ -1,10 +1,10 @@
-// src/apps/bin/open-package.js
+// src/apps/bin/open-package.ts
 
 /**
  * Abre un paquete instalado en una ventana
  */
 
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   if (args.length === 0) {
     context.stdout('ðŸ“¦ Abrir Paquetes Instalados', 'info');
     context.stdout('');
@@ -12,9 +12,9 @@ export async function run(args, context) {
     context.stdout('');
     
     // Listar paquetes instalados
-    if (window.ShawOSPackages && Object.keys(window.ShawOSPackages).length > 0) {
+    if ((window as any).ShawOSPackages && Object.keys((window as any).ShawOSPackages).length > 0) {
       context.stdout('Paquetes instalados:', 'success');
-      Object.keys(window.ShawOSPackages).forEach(pkg => {
+      Object.keys((window as any).ShawOSPackages).forEach(pkg => {
         context.stdout(`  â€¢ ${pkg}`, 'info');
       });
     } else {
@@ -28,14 +28,14 @@ export async function run(args, context) {
   const packageName = args[0];
   
   // Verificar si existe
-  if (!window.ShawOSPackages || !window.ShawOSPackages[packageName]) {
+  if (!((window as any).ShawOSPackages) || !((window as any).ShawOSPackages)[packageName]) {
     context.stderr(`Paquete "${packageName}" no estÃ¡ instalado`);
     context.stdout('InstÃ¡lalo con: apt install ' + packageName, 'info');
     return { success: false };
   }
 
   try {
-    const PackageClass = window.ShawOSPackages[packageName];
+    const PackageClass = (window as any).ShawOSPackages[packageName];
     
     // Obtener settings de la app
     const settings = PackageClass.appSettings ? PackageClass.appSettings() : {};
@@ -62,7 +62,7 @@ export async function run(args, context) {
     return { success: true };
     
   } catch (error) {
-    context.stderr(`Error al abrir el paquete: ${error.message}`);
+    context.stderr(`Error al abrir el paquete: ${(error as Error).message}`);
     console.error('Error details:', error);
     return { success: false };
   }

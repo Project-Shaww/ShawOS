@@ -1,5 +1,5 @@
-// src/apps/bin/cd.js
-export async function run(args, context) {
+// src/apps/bin/cd.ts
+export async function run(args: string[], context: any) {
   if (args.length === 0) {
     context.fs.currentPath = ['home'];
     context.stdout('', 'info');

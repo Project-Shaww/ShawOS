@@ -1,5 +1,5 @@
-// src/apps/bin/cowsay.js
-export async function run(args, context) {
+// src/apps/bin/cowsay.ts
+export async function run(args: string[], context: any) {
   const text = args.join(' ') || 'Muu!';
   const border = '_'.repeat(text.length + 2);
 

@@ -1,5 +1,5 @@
-// src/apps/bin/neofetch.js
-export async function run(args, context) {
+// src/apps/bin/neofetch.ts
+export async function run(args: string[], context: any) {
   const uptime = getUptime();
   const memory = getMemoryUsage();
   
@@ -28,9 +28,9 @@ function getUptime() {
 }
 
 function getMemoryUsage() {
-  if (performance.memory) {
-    const used = (performance.memory.usedJSHeapSize / 1048576).toFixed(1);
-    const total = (performance.memory.totalJSHeapSize / 1048576).toFixed(1);
+  if ((performance as any).memory) {
+    const used = ((performance as any).memory.usedJSHeapSize / 1048576).toFixed(1);
+    const total = ((performance as any).memory.totalJSHeapSize / 1048576).toFixed(1);
     return `${used}M / ${total}M`;
   }
   return 'N/A';

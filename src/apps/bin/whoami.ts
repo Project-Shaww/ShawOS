@@ -1,7 +1,7 @@
-// src/apps/bin/whoami.js
+// src/apps/bin/whoami.ts
 import { UserManager } from '../../core/UserManager.js';
 
-export async function run(args, context) {
+export async function run(args: string[], context: any) {
   const userManager = new UserManager();
   const user = userManager.getCurrentUser();
   

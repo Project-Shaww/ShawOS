@@ -1,5 +1,5 @@
-// src/apps/bin/uname.js
-export async function run(args, context) {
+// src/apps/bin/uname.ts
+export async function run(args: string[], context: any) {
   const flag = args[0];
   
   if (flag === '-a') {

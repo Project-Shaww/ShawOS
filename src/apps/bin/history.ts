@@ -1,7 +1,7 @@
-// src/apps/bin/history.js
-export async function run(args, context) {
+// src/apps/bin/history.ts
+export async function run(args: string[], context: any) {
   if (context.terminal && context.terminal.history) {
-    context.terminal.history.forEach((cmd, i) => {
+    context.terminal.history.forEach((cmd: string, i: number) => {
       context.stdout(`  ${i + 1}  ${cmd}`, 'info');
     });
   }

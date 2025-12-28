@@ -1,5 +1,5 @@
-// src/apps/bin/tree.js
-export async function run(args, context) {
+// src/apps/bin/tree.ts
+export async function run(args: string[], context: any) {
   context.stdoutHTML('.', 'dir-color-inline');
   
   const currentPath = context.fs.currentPath.slice();
@@ -9,10 +9,10 @@ export async function run(args, context) {
   return { success: true };
 }
 
-function renderTree(context, prefix, currentPrefix) {
+function renderTree(context: any, prefix: string, currentPrefix: string) {
   const files = context.ls();
-  const dirs = files.filter(f => f.type === 'directory');
-  const regularFiles = files.filter(f => f.type === 'file');
+  const dirs = files.filter((f: any) => f.type === 'directory');
+  const regularFiles = files.filter((f: any) => f.type === 'file');
   const allItems = [...dirs, ...regularFiles];
 
   allItems.forEach((item, index) => {
