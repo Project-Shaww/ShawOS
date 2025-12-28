@@ -512,7 +512,7 @@ export async function run(args: string[], context: any) {
   // Detectar tipo de instalación
   let customUrl = null;
   let packageName = null;
-  let repo = REPO_OFFICIAL;
+  let repo = '';
   let isGithubShorthand = false;
 
   if (args[1] === '-c' || args[1] === '--community') {
@@ -540,7 +540,7 @@ export async function run(args: string[], context: any) {
     repo = ghr.split('/').filter((part) => part !== '').join('/');
     packageName = pkg;
     if (repo.split('/').length == 2) repo = repo + '/main';
-    else if (repo.split('/').length != 3) {if (!packageName || packageName == null || packageName == undefined) {packageName = repo; repo = REPO_COMMUNITY} else {
+    else if (repo.split('/').length < 2) {if (!packageName || packageName == null || packageName == undefined) {packageName = repo; repo = REPO_COMMUNITY} else {
       context.stderr('Error: especifica el nombre del paquete');
       context.stdout('Ejemplo: spm install -gh Project-Shaww/shawweb-community-packages snake', 'info');
       return { success: false };
@@ -554,13 +554,15 @@ export async function run(args: string[], context: any) {
       return { success: false };
     }
     
-    // Extraer nombre del paquete de la URL
+    isGithubShorthand = false;
     const urlParts = customUrl.split('/');
     const filename = urlParts[urlParts.length - 1];
     packageName = filename.replace(/\.(js|ts|zip)$/, '');
     
     context.stdout(`Instalando desde URL personalizada: ${packageName}`, 'info');
   } else {
+    repo = REPO_OFFICIAL;
+    isGithubShorthand = true;
     packageName = args[1];
     
     if (!packageName) {
