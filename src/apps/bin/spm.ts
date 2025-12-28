@@ -505,7 +505,7 @@ export async function run(args: string[], context: any) {
   }
 
   // Comando install
-  if (args[0] !== 'install') {
+  if (args[0] !== 'install' && args[0] !== 'i') {
     context.stderr('Comando no reconocido. Usa "spm -h" para ver la ayuda');
     return { success: false };
   }
