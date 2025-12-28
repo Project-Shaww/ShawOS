@@ -8,7 +8,7 @@
 const REPO_URL = 'https://raw.githubusercontent.com/';
 const REPO_OFFICIAL = 'Project-Shaww/shawweb-packages/main';
 const REPO_COMMUNITY = 'Project-Shaww/shawweb-community-packages/main';
-const REPO_API_URL = 'https://api.github.com/repos/';
+const REPO_API_URL = 'https://api.github.com/repos';
 
 // Importar JSZip desde CDN si no está disponible
 async function ensureJSZip() {
