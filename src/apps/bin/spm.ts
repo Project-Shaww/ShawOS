@@ -727,4 +727,4 @@ export async function run(args: string[], context: any) {
 }
 
 export const description = 'Instala paquetes .js, .ts o .zip desde el repositorio de Shaww';
-export const usage = 'spm install <package> | spm install -gh <package> | spm install -o <url> | spm -h';
+export const usage = 'spm install <package> | spm install -c <package> | spm install -gh <ghrepo> <package> | spm install -o <url> | spm -h';
