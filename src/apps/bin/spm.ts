@@ -346,6 +346,7 @@ async function tryInstallFromGitHubFolder(repository: string, packageName: strin
     if (!((window as any).ShawOSPackageFiles)[packageName]) {
       (window as any).ShawOSPackageFiles[packageName] = {};
     }
+    (window as any).getPackageFile = (packageName: string, filename: string, returnAll: boolean = false) => { const packageFiles = (window as any).ShawOSPackageFiles[packageName]; if (!packageFiles) return null; const packageFile = packageFiles[filename]; if (!packageFile) return null; if (returnAll) return packageFile; return packageFile.content; }
     
     let mainJsCode = null;
     let processedFiles = 0;

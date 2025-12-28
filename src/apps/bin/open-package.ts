@@ -52,11 +52,8 @@ export async function run(args: string[], context: any) {
     
     // Instanciar la app
     let appInstance
-    // De forma temporal la instancia requiere el packageContext hasta actualizacion de paquetes actuales
-    try { appInstance = new PackageClass(container, context.fs, context.terminal.shawOS, { getFile: (filename: string) => { return (window as any).getPackageFile(packageName, filename); } } ); } catch (error) { 
-      try { appInstance = new PackageClass(container, context.fs, context.terminal.shawOS, ); } catch (error) { 
-        try { appInstance = new PackageClass(container); } catch (error) { return { success: false }; }
-      }
+    try { appInstance = new PackageClass(container, context.fs, context.terminal.shawOS, ); } catch (error) { 
+      try { appInstance = new PackageClass(container); } catch (error) { return { success: false }; }
     }
     
     context.terminal.shawOS.appHandler.appInstances.set(id, appInstance)
