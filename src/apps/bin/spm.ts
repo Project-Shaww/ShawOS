@@ -282,25 +282,27 @@ async function installTsPackage(tsCode: string, packageName: string, context: an
 }
 
 function showHelp(context: any) {
-  context.stdout('========================================', 'info');
-  context.stdout('    SPM - Shaww Package Manager v1.0   ', 'info');
-  context.stdout('========================================', 'info');
-  context.stdout('');
-  context.stdout('COMANDOS DISPONIBLES:', 'info');
-  context.stdout('');
-  context.stdout('  spm install <package>      Instala un paquete oficial de Shaww', 'info');
-  context.stdout('  spm install -gh <package>  Instala un paquete de la comunidad (verificado)', 'info');
-  context.stdout('  spm install -o <url>       Instala desde cualquier URL (no verificado)', 'info');
-  context.stdout('  spm run <package>          Ejecuta un paquete instalado', 'info');
-  context.stdout('  spm -h                     Muestra esta ayuda', 'info');
-  context.stdout('');
-  context.stdout('FORMATOS SOPORTADOS:', 'info');
-  context.stdout('  .js  - JavaScript', 'info');
-  context.stdout('  .ts  - TypeScript', 'info');
-  context.stdout('  .zip - Paquete comprimido', 'info');
-  context.stdout('  Carpetas con multiples archivos', 'info');
-  context.stdout('');
-  context.stdout('NOTA: Para ejecutar un paquete instalado usa: spm run <package>', 'info');
+  const helpText = `========================================
+    SPM - Shaww Package Manager v1.0   
+========================================
+
+COMANDOS DISPONIBLES:
+
+  spm install <package>      Instala un paquete oficial de Shaww
+  spm install -gh <package>  Instala un paquete de la comunidad (verificado)
+  spm install -o <url>       Instala desde cualquier URL (no verificado)
+  spm run <package>          Ejecuta un paquete instalado
+  spm -h                     Muestra esta ayuda
+
+FORMATOS SOPORTADOS:
+  .js  - JavaScript
+  .ts  - TypeScript
+  .zip - Paquete comprimido
+  Carpetas con multiples archivos
+
+NOTA: Para ejecutar un paquete instalado usa: spm run <package>`;
+
+  context.stdout(helpText, 'info');
 }
 
 async function tryInstallFromGitHubFolder(packageName: string, context: any) {
@@ -678,7 +680,6 @@ export async function run(args: string[], context: any) {
     
     if (!zipData) {
       context.stderr(`No se ha podido encontrar el paquete "${packageName}"`);
-      context.stdout('Comprueba que el paquete exista en el repositorio (.js, .ts, .zip o carpeta/)', 'info');
       return { success: false };
     }
     
