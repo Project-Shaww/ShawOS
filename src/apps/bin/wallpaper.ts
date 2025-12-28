@@ -1,10 +1,19 @@
-// src/apps/bin/wallpaper.js
+// src/apps/bin/wallpaper.ts
 
 const WALLPAPER_KEY = 'shawos-wallpaper';
 const BACKGROUNDS_PATH = '/backgrounds/';
 
+interface Wallpaper {
+  name: string;
+  file: string;
+}
+
+interface WallpaperWithUrl extends Wallpaper {
+  url: string;
+}
+
 // Lista de fondos disponibles (embebidos)
-const EMBEDDED_WALLPAPERS = [
+const EMBEDDED_WALLPAPERS: Wallpaper[] = [
   { name: "fondo", file: "fondo.webp" },
   { name: "city", file: "city.webp" },
   { name: "dog", file: "dog.webp" },
@@ -16,7 +25,7 @@ const EMBEDDED_WALLPAPERS = [
 ];
 
 // Obtener fondos disponibles con URLs completas
-function scanWallpapers() {
+function scanWallpapers(): WallpaperWithUrl[] {
   return EMBEDDED_WALLPAPERS.map(wp => ({
     name: wp.name,
     file: wp.file,
@@ -24,7 +33,7 @@ function scanWallpapers() {
   }));
 }
 
-export function run(args, context) {
+export function run(args: string[], context: any) {
   const command = args[0];
 
   // Sin argumentos o -h: mostrar ayuda
@@ -67,7 +76,7 @@ export function run(args, context) {
   return { success: false };
 }
 
-function showHelp(context) {
+function showHelp(context: any): void {
   context.stdout('', 'info');
   context.stdout('wallpaper - Gestor de fondos de pantalla', 'success');
   context.stdout('', 'info');
@@ -84,7 +93,7 @@ function showHelp(context) {
   context.stdout('  wallpaper -c               # Ver fondo actual', 'info');
 }
 
-function listWallpapers(context) {
+function listWallpapers(context: any): void {
   context.stdout('', 'info');
   context.stdout('Fondos de pantalla disponibles:', 'success');
   context.stdout('', 'info');
@@ -106,7 +115,7 @@ function listWallpapers(context) {
   context.stdout('Usa "wallpaper -s <nombre>" para cambiar el fondo', 'info');
 }
 
-async function setWallpaper(name, context) {
+async function setWallpaper(name: string, context: any) {
   const wallpapers = scanWallpapers();
   const current = getCurrentWallpaper();
   
@@ -152,12 +161,12 @@ async function setWallpaper(name, context) {
       return { success: false };
     }
   } catch (error) {
-    context.stderr(`Error: ${error.message}`);
+    context.stderr(`Error: ${(error as Error).message}`);
     return { success: false };
   }
 }
 
-function showCurrent(context) {
+function showCurrent(context: any): void {
   const current = getCurrentWallpaper();
 
   context.stdout('', 'info');
@@ -165,7 +174,7 @@ function showCurrent(context) {
   context.stdout('', 'info');
 }
 
-async function resetWallpaper(context) {
+async function resetWallpaper(context: any) {
   const wallpapers = scanWallpapers();
   
   // Intentar usar 'fondo' como predeterminado, o el primero disponible
@@ -189,9 +198,9 @@ async function resetWallpaper(context) {
   return { success: true };
 }
 
-function getCurrentWallpaper() {
+function getCurrentWallpaper(): string {
   return localStorage.getItem(WALLPAPER_KEY) || 'fondo';
 }
 
 export const description = 'Gestor de fondos de pantalla';
-export const usage = 'wallpaper [-h|-ls|-s <nombre>|-c|-r|--scan]';
+export const usage = 'wallpaper [-h|-ls|-s <nombre>|-c|-r]';

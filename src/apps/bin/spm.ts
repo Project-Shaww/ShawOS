@@ -5,7 +5,8 @@
  * Descarga e instala paquetes .js, .ts o .zip desde el repositorio remoto de Shaww
  */
 
-const REPO_URL = 'https://shaww.duckdns.org/packages';
+const REPO_URL = 'https://raw.githubusercontent.com/Project-Shaww/shawweb-packages/main';
+const REPO_API_URL = 'https://api.github.com/repos/Project-Shaww/shawweb-packages/contents';
 
 // Importar JSZip desde CDN si no está disponible
 async function ensureJSZip() {
@@ -194,7 +195,7 @@ async function installZipPackage(zipData: Uint8Array, packageName: string, conte
   if (loadingLine) loadingLine.remove();
   
   context.stdout(
-    `✓ ${processedFiles} archivos descomprimidos en memoria`,
+    `${processedFiles} archivos descomprimidos en memoria`,
     'success'
   );
   
@@ -280,38 +281,360 @@ async function installTsPackage(tsCode: string, packageName: string, context: an
   }
 }
 
-export async function run(args: string[], context: any) {
-  if (args.length === 0 || args[0] !== 'install') {
-    if (args.length !== 0 && args[0] == 'run') {
-      const packageName = args[1];
-      if (!packageName) {
-        context.stderr('Error: especifica el nombre del paquete');
-        return { success: false };
-      }
+function showHelp(context: any) {
+  context.stdout('========================================', 'info');
+  context.stdout('    SPM - Shaww Package Manager v1.0   ', 'info');
+  context.stdout('========================================', 'info');
+  context.stdout('');
+  context.stdout('COMANDOS DISPONIBLES:', 'info');
+  context.stdout('');
+  context.stdout('  spm install <package>      Instala un paquete desde el repositorio', 'info');
+  context.stdout('  spm install -gh <package>  Instala un paquete del repositorio oficial', 'info');
+  context.stdout('  spm install -o <url>       Instala desde una URL personalizada', 'info');
+  context.stdout('  spm run <package>          Ejecuta un paquete instalado', 'info');
+  context.stdout('  spm -h                     Muestra esta ayuda', 'info');
+  context.stdout('');
+  context.stdout('FORMATOS SOPORTADOS:', 'info');
+  context.stdout('  .js  - JavaScript', 'info');
+  context.stdout('  .ts  - TypeScript', 'info');
+  context.stdout('  .zip - Paquete comprimido', 'info');
+  context.stdout('  Carpetas con main.js', 'info');
+  context.stdout('');
+  context.stdout('NOTA: Para ejecutar un paquete instalado usa: spm run <package>', 'info');
+}
 
-      context.terminal.executeCommand('open-package ' + packageName);
-      return { success: true };
+async function tryInstallFromGitHubFolder(packageName: string, context: any) {
+  try {
+    // Usar la API de GitHub para listar el contenido de la carpeta
+    const apiUrl = `${REPO_API_URL}/${packageName}`;
+    
+    const response = await fetch(apiUrl);
+    
+    if (!response.ok) {
+      return false;
+    }
+    
+    const files = await response.json();
+    
+    if (!Array.isArray(files)) {
+      return false;
+    }
+    
+    // Filtrar solo archivos (no directorios)
+    const fileList = files.filter((file: any) => file.type === 'file');
+    
+    if (fileList.length === 0) {
+      return false;
+    }
+    
+    context.stdout(`Descargando ${fileList.length} archivos...`, 'info');
+    
+    let loadingLine = null;
+    if (context.terminal && context.terminal.output) {
+      loadingLine = context.terminal.output.lastChild;
+    }
+    
+    // Crear namespace para archivos del paquete
+    if (!((window as any).ShawOSPackageFiles)) (window as any).ShawOSPackageFiles = {};
+    if (!((window as any).ShawOSPackageFiles)[packageName]) {
+      (window as any).ShawOSPackageFiles[packageName] = {};
+    }
+    
+    let mainJsCode = null;
+    let processedFiles = 0;
+    
+    // Descargar todos los archivos de la carpeta
+    for (const file of fileList) {
+      const fileName = file.name;
+      const downloadUrl = file.download_url;
+      
+      // Actualizar barra de progreso
+      if (loadingLine) {
+        const percent = Math.round((processedFiles / fileList.length) * 100);
+        const barLength = 30;
+        const filled = Math.round((processedFiles / fileList.length) * barLength);
+        const bar = '█'.repeat(filled) + '░'.repeat(barLength - filled);
+        
+        loadingLine.textContent = 
+          `Descargando archivos... ${bar} ${percent}% (${processedFiles}/${fileList.length})`;
+      }
+      
+      try {
+        const fileResponse = await fetch(downloadUrl);
+        
+        if (!fileResponse.ok) {
+          continue;
+        }
+        
+        // Detectar tipo de archivo por extensión
+        const ext = fileName.split('.').pop()?.toLowerCase();
+        
+        if (ext === 'js') {
+          const content = await fileResponse.text();
+          
+          // Si es main.js, guardarlo como el archivo principal
+          if (fileName === 'main.js' || fileName === `${packageName}.js`) {
+            mainJsCode = content;
+          }
+          
+          (window as any).ShawOSPackageFiles[packageName][fileName] = {
+            type: 'text',
+            content: content
+          };
+        } 
+        else if (['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico'].includes(ext || '')) {
+          const blob = await fileResponse.blob();
+          const dataUrl = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+          
+          (window as any).ShawOSPackageFiles[packageName][fileName] = {
+            type: 'image',
+            content: dataUrl
+          };
+        }
+        else if (['mp3', 'wav', 'ogg'].includes(ext || '')) {
+          const blob = await fileResponse.blob();
+          const dataUrl = await new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+          });
+          
+          (window as any).ShawOSPackageFiles[packageName][fileName] = {
+            type: 'audio',
+            content: dataUrl
+          };
+        }
+        else if (['json', 'txt', 'html', 'css', 'md'].includes(ext || '')) {
+          const content = await fileResponse.text();
+          
+          (window as any).ShawOSPackageFiles[packageName][fileName] = {
+            type: 'text',
+            content: content
+          };
+        }
+        else {
+          // Binario genérico
+          const arrayBuffer = await fileResponse.arrayBuffer();
+          const content = new Uint8Array(arrayBuffer);
+          
+          (window as any).ShawOSPackageFiles[packageName][fileName] = {
+            type: 'binary',
+            content: content
+          };
+        }
+        
+        processedFiles++;
+        
+        // Actualizar barra de progreso después de cada archivo
+        if (loadingLine) {
+          const percent = Math.round((processedFiles / fileList.length) * 100);
+          const barLength = 30;
+          const filled = Math.round((processedFiles / fileList.length) * barLength);
+          const bar = '█'.repeat(filled) + '░'.repeat(barLength - filled);
+          
+          loadingLine.textContent = 
+            `Descargando archivos... ${bar} ${percent}% (${processedFiles}/${fileList.length})`;
+        }
+      } catch (downloadError) {
+        context.stderr(`Error descargando ${fileName}: ${(downloadError as Error).message}`);
+      }
+    }
+    
+    if (loadingLine) loadingLine.remove();
+    
+    context.stdout(`${processedFiles} archivos descargados correctamente`, 'success');
+    
+    // Ejecutar el archivo principal si existe
+    if (mainJsCode) {
+      context.stdout('Ejecutando paquete...', 'info');
+      
+      try {
+        // Crear función helper para acceder a archivos del paquete
+        (window as any).getPackageFile = (pkg: string, filename: string) => {
+          return (window as any).ShawOSPackageFiles[pkg]?.[filename]?.content;
+        };
+        
+        eval(mainJsCode);
+        context.stdout(`Paquete "${packageName}" instalado correctamente`, 'success');
+        return true;
+      } catch (evalError) {
+        context.stderr(`Error al ejecutar el paquete: ${(evalError as Error).message}`);
+        console.error('SPM eval error:', evalError);
+        return false;
+      }
+    } else {
+      context.stderr('No se encontro archivo principal (main.js)');
+      return false;
+    }
+    
+  } catch (error) {
+    console.log('[SPM] Error al buscar en carpeta de GitHub:', error);
+    return false;
+  }
+}
+
+export async function run(args: string[], context: any) {
+  // Comando de ayuda
+  if (args.length === 0 || args[0] === '-h' || args[0] === '--help') {
+    showHelp(context);
+    return { success: true };
+  }
+
+  // Comando run
+  if (args[0] === 'run') {
+    const packageName = args[1];
+    if (!packageName) {
+      context.stderr('Error: especifica el nombre del paquete');
+      return { success: false };
     }
 
-    context.stdout('SPM — Shaww Package Manager', 'info');
-    context.stdout('Uso: spm install <package>', 'info');
-    context.stdout('Uso: spm run <package>', 'info');
-    context.stdout('');
-    context.stdout('Soporta archivos .js, .ts y .zip', 'info');
-    context.stdout('Los .zip se descomprimen automáticamente en memoria', 'info');
+    context.terminal.executeCommand('open-package ' + packageName);
+    return { success: true };
+  }
+
+  // Comando install
+  if (args[0] !== 'install') {
+    context.stderr('Comando no reconocido. Usa "spm -h" para ver la ayuda');
     return { success: false };
   }
 
-  const packageName = args[1];
+  // Detectar tipo de instalación
+  let customUrl = null;
+  let packageName = null;
+  let isGitHubShorthand = false;
 
-  if (!packageName) {
-    context.stderr('Error: especifica el nombre del paquete');
-    return { success: false };
+  if (args[1] === '-gh' || args[1] === '--github') {
+    const pkg = args[2];
+    if (!pkg) {
+      context.stderr('Error: especifica el nombre del paquete');
+      context.stdout('Ejemplo: spm install -gh snake', 'info');
+      return { success: false };
+    }
+    
+    packageName = pkg;
+    isGitHubShorthand = true;
+    context.stdout(`Instalando "${packageName}" desde el repositorio oficial`, 'info');
+  } else if (args[1] === '-o' || args[1] === '--origin') {
+    customUrl = args[2];
+    if (!customUrl) {
+      context.stderr('Error: especifica la URL del paquete');
+      context.stdout('Ejemplo: spm install -o https://raw.githubusercontent.com/.../test.js', 'info');
+      return { success: false };
+    }
+    
+    // Extraer nombre del paquete de la URL
+    const urlParts = customUrl.split('/');
+    const filename = urlParts[urlParts.length - 1];
+    packageName = filename.replace(/\.(js|ts|zip)$/, '');
+    
+    context.stdout(`Instalando desde URL personalizada: ${packageName}`, 'info');
+  } else {
+    packageName = args[1];
+    
+    if (!packageName) {
+      context.stderr('Error: especifica el nombre del paquete');
+      return { success: false };
+    }
   }
 
   try {
-    context.stdout(`🔍 Buscando ${packageName}...`, 'info');
+    context.stdout(`Buscando ${packageName}...`, 'info');
     
+    // Si es shorthand de GitHub, buscar en carpetas usando la API
+    if (isGitHubShorthand) {
+      const folderSuccess = await tryInstallFromGitHubFolder(packageName, context);
+      if (folderSuccess) {
+        context.stdout('');
+        context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+        return { success: true };
+      }
+      
+      // Si no funciona como carpeta, intentar archivos directos
+      // Continuar con la búsqueda normal
+    }
+    
+    // Si hay URL personalizada completa, usarla directamente
+    if (customUrl) {
+      const extension = customUrl.split('.').pop()?.toLowerCase();
+      
+      if (extension === 'js') {
+        try {
+          const response = await fetch(customUrl);
+          if (response.ok) {
+            const jsCode = await response.text();
+            const success = await installJsPackage(jsCode, packageName, context);
+            
+            if (success) {
+              context.stdout('');
+              context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+              return { success };
+            }
+          }
+        } catch (error) {
+          context.stderr(`Error al descargar desde: ${customUrl}`);
+          context.stdout(`Error: ${(error as Error).message}`, 'error');
+          return { success: false };
+        }
+      } else if (extension === 'ts') {
+        try {
+          const response = await fetch(customUrl);
+          if (response.ok) {
+            const tsCode = await response.text();
+            const success = await installTsPackage(tsCode, packageName, context);
+            
+            if (success) {
+              context.stdout('');
+              context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+              return { success };
+            }
+          }
+        } catch (error) {
+          context.stderr(`Error al descargar desde: ${customUrl}`);
+          context.stdout(`Error: ${(error as Error).message}`, 'error');
+          return { success: false };
+        }
+      } else if (extension === 'zip') {
+        const zipData = await downloadWithProgress(customUrl, context, packageName);
+        
+        if (!zipData) {
+          context.stderr(`No se ha podido descargar desde: ${customUrl}`);
+          return { success: false };
+        }
+        
+        if (!isZipFile(zipData)) {
+          context.stderr(`El archivo no es un ZIP valido`);
+          return { success: false };
+        }
+        
+        const success = await installZipPackage(zipData, packageName, context);
+        
+        if (success) {
+          context.stdout('');
+          context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+          return { success };
+        }
+      } else {
+        context.stderr('Formato no soportado. Usa .js, .ts o .zip');
+        return { success: false };
+      }
+    }
+    
+    // Búsqueda en repositorio oficial
+    // Primero intentar como carpeta usando la API
+    if (!customUrl) {
+      const folderSuccess = await tryInstallFromGitHubFolder(packageName, context);
+      if (folderSuccess) {
+        context.stdout('');
+        context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+        return { success: true };
+      }
+    }
+    
+    // Intentar archivos directos
     let jsUrl = `${REPO_URL}/${packageName}.js`;
     let jsResponse = null;
     
@@ -355,15 +678,15 @@ export async function run(args: string[], context: any) {
     
     if (!zipData) {
       context.stderr(`No se ha podido encontrar el paquete "${packageName}"`);
-      context.stdout('Comprueba que el paquete exista en el repositorio (.js o .zip)', 'info');
+      context.stdout('Comprueba que el paquete exista en el repositorio (.js, .ts, .zip o carpeta/)', 'info');
       return { success: false };
     }
     
     if (!isZipFile(zipData)) {
       const preview = Array.from(zipData.slice(0, 10)).map(b => b.toString(16).padStart(2, '0')).join(' ');
-      context.stderr(`El archivo "${packageName}.zip" no es un ZIP válido`);
+      context.stderr(`El archivo "${packageName}.zip" no es un ZIP valido`);
       context.stdout(`Primeros bytes: ${preview}`, 'error');
-      context.stdout(`Tamaño: ${zipData.length} bytes`, 'error');
+      context.stdout(`Tamano: ${zipData.length} bytes`, 'error');
       return { success: false };
     }
     
@@ -378,7 +701,7 @@ export async function run(args: string[], context: any) {
       return { success };
     }
 
-    context.stderr(`El paquete "${packageName}" no es válido`);
+    context.stderr(`El paquete "${packageName}" no es valido`);
     return { success: false };
 
   } catch (error) {
@@ -389,5 +712,5 @@ export async function run(args: string[], context: any) {
   }
 }
 
-export const description = 'Instala paquetes .js o .zip desde el repositorio de Shaww';
-export const usage = 'spm install <package>';
+export const description = 'Instala paquetes .js, .ts o .zip desde el repositorio de Shaww';
+export const usage = 'spm install <package> | spm install -gh <package> | spm install -o <url> | spm -h';
