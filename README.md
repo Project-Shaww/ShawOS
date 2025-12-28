@@ -1,9 +1,10 @@
 # ShawOS - V2
 
-![Estado](https://img.shields.io/badge/Estado-En%20Desarrollo-yellow?style=for-the-badge)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)
+![Estado](https://img.shields.io/badge/Estado-En_Desarrollo-FFA500?style=flat-square&labelColor=1a1a1a)
+
+**Tecnologías:**
+
+[![Tech Stack](https://skillicons.dev/icons?i=js,ts,vite)](https://skillicons.dev)
 
 Un sistema operativo completo simulado en el navegador construido con TypeScript y Vite, con arquitectura modular inspirada en Unix/Linux y sistema de usuarios real con almacenamiento persistente.
 
@@ -317,7 +318,7 @@ SOFTWARE.
 
 ---
 
-## 📧 Contacto
+##  Contacto
 
 ### Project Shaww
 
