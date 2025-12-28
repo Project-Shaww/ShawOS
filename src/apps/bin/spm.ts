@@ -5,8 +5,10 @@
  * Descarga e instala paquetes .js, .ts o .zip desde el repositorio remoto de Shaww
  */
 
-const REPO_URL = 'https://raw.githubusercontent.com/Project-Shaww/shawweb-packages/main';
-const REPO_API_URL = 'https://api.github.com/repos/Project-Shaww/shawweb-packages/contents';
+const REPO_URL = 'https://raw.githubusercontent.com/';
+const REPO_OFFICIAL = 'Project-Shaww/shawweb-packages/main';
+const REPO_COMMUNITY = 'Project-Shaww/shawweb-community-packages/main';
+const REPO_API_URL = 'https://api.github.com/repos/';
 
 // Importar JSZip desde CDN si no está disponible
 async function ensureJSZip() {
@@ -289,7 +291,8 @@ function showHelp(context: any) {
 COMANDOS DISPONIBLES:
 
   spm install <package>      Instala un paquete oficial de Shaww
-  spm install -gh <package>  Instala un paquete de la comunidad (verificado)
+  spm install -c <package>   Instala un paquete de la comunidad (verificado)
+  spm install -gh <repo>/<branch?> <package-name> Instala un paquete de GitHub
   spm install -o <url>       Instala desde cualquier URL (no verificado)
   spm run <package>          Ejecuta un paquete instalado
   spm -h                     Muestra esta ayuda
@@ -305,10 +308,12 @@ NOTA: Para ejecutar un paquete instalado usa: spm run <package>`;
   context.stdout(helpText, 'info');
 }
 
-async function tryInstallFromGitHubFolder(packageName: string, context: any) {
+async function tryInstallFromGitHubFolder(repository: string, packageName: string, context: any) {
   try {
     // Usar la API de GitHub para listar el contenido de la carpeta
-    const apiUrl = `${REPO_API_URL}/${packageName}`;
+    const repo = repository.split('/');
+    
+    const apiUrl = `${REPO_API_URL}/${repo[0]}/${repo[1]}/contents/${packageName}`;
     
     const response = await fetch(apiUrl);
     
@@ -507,18 +512,39 @@ export async function run(args: string[], context: any) {
   // Detectar tipo de instalación
   let customUrl = null;
   let packageName = null;
-  let isGitHubShorthand = false;
+  let repo = REPO_OFFICIAL;
+  let isGithubShorthand = false;
 
-  if (args[1] === '-gh' || args[1] === '--github') {
+  if (args[1] === '-c' || args[1] === '--community') {
     const pkg = args[2];
     if (!pkg) {
       context.stderr('Error: especifica el nombre del paquete');
-      context.stdout('Ejemplo: spm install -gh snake', 'info');
+      context.stdout('Ejemplo: spm install -c snake', 'info');
       return { success: false };
     }
     
+    isGithubShorthand = true;
+    repo = REPO_COMMUNITY;
     packageName = pkg;
-    isGitHubShorthand = true;
+    context.stdout(`Instalando "${packageName}" desde el repositorio oficial`, 'info');
+  } else if (args[1] === '-gh' || args[1] === '--github') {
+    const ghr = args[2];
+    const pkg = args[3];
+    if (!pkg) {
+      context.stderr('Error: especifica el nombre del paquete');
+      context.stdout('Ejemplo: spm install -gh Project-Shaww/shawweb-community-packages snake', 'info');
+      return { success: false };
+    }
+    
+    isGithubShorthand = true;
+    repo = ghr.split('/').filter((part) => part !== '').join('/');
+    packageName = pkg;
+    if (repo.split('/').length == 2) repo = repo + '/main';
+    else if (repo.split('/').length != 3) {if (!packageName || packageName == null || packageName == undefined) {packageName = repo; repo = REPO_COMMUNITY} else {
+      context.stderr('Error: especifica el nombre del paquete');
+      context.stdout('Ejemplo: spm install -gh Project-Shaww/shawweb-community-packages snake', 'info');
+      return { success: false };
+    }}
     context.stdout(`Instalando "${packageName}" desde el repositorio oficial`, 'info');
   } else if (args[1] === '-o' || args[1] === '--origin') {
     customUrl = args[2];
@@ -546,23 +572,8 @@ export async function run(args: string[], context: any) {
   try {
     context.stdout(`Buscando ${packageName}...`, 'info');
     
-    // Si es shorthand de GitHub, buscar en carpetas usando la API
-    if (isGitHubShorthand) {
-      const folderSuccess = await tryInstallFromGitHubFolder(packageName, context);
-      if (folderSuccess) {
-        context.stdout('');
-        context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
-        return { success: true };
-      }
-      
-      // Si no funciona como carpeta, intentar archivos directos
-      // Continuar con la búsqueda normal
-    }
-    
-    // Si hay URL personalizada completa, usarla directamente
     if (customUrl) {
       const extension = customUrl.split('.').pop()?.toLowerCase();
-      
       if (extension === 'js') {
         try {
           const response = await fetch(customUrl);
@@ -623,12 +634,12 @@ export async function run(args: string[], context: any) {
         context.stderr('Formato no soportado. Usa .js, .ts o .zip');
         return { success: false };
       }
+      return { success: false };
     }
     
-    // Búsqueda en repositorio oficial
-    // Primero intentar como carpeta usando la API
-    if (!customUrl) {
-      const folderSuccess = await tryInstallFromGitHubFolder(packageName, context);
+    // Intentar carpeta
+    if (isGithubShorthand) {
+      const folderSuccess = await tryInstallFromGitHubFolder(repo, packageName, context);
       if (folderSuccess) {
         context.stdout('');
         context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
@@ -637,7 +648,7 @@ export async function run(args: string[], context: any) {
     }
     
     // Intentar archivos directos
-    let jsUrl = `${REPO_URL}/${packageName}.js`;
+    let jsUrl = `${REPO_URL}/${repo}/${packageName}.js`;
     let jsResponse = null;
     
     try { jsResponse = await fetch(jsUrl); } catch (fetchError) { console.log('[SPM] Network error fetching .js:', fetchError); }
@@ -656,7 +667,7 @@ export async function run(args: string[], context: any) {
       }
     }
 
-    let tsUrl = `${REPO_URL}/${packageName}.ts`;
+    let tsUrl = `${REPO_URL}/${repo}/${packageName}.ts`;
     let tsResponse = null;
     
     try { tsResponse = await fetch(tsUrl); } catch (fetchError) { console.log('[SPM] Network error fetching .ts:', fetchError); }
@@ -675,7 +686,7 @@ export async function run(args: string[], context: any) {
       }
     }
     
-    const zipUrl = `${REPO_URL}/${packageName}.zip`;
+    const zipUrl = `${REPO_URL}/${repo}/${packageName}.zip`;
     const zipData = await downloadWithProgress(zipUrl, context, packageName);
     
     if (!zipData) {
