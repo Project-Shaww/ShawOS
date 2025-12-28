@@ -283,8 +283,20 @@ async function installTsPackage(tsCode: string, packageName: string, context: an
 
 export async function run(args: string[], context: any) {
   if (args.length === 0 || args[0] !== 'install') {
+    if (args.length !== 0 && args[0] == 'run') {
+      const packageName = args[1];
+      if (!packageName) {
+        context.stderr('Error: especifica el nombre del paquete');
+        return { success: false };
+      }
+
+      context.terminal.executeCommand('open-package ' + packageName);
+      return { success: true };
+    }
+
     context.stdout('SPM — Shaww Package Manager', 'info');
     context.stdout('Uso: spm install <package>', 'info');
+    context.stdout('Uso: spm run <package>', 'info');
     context.stdout('');
     context.stdout('Soporta archivos .js, .ts y .zip', 'info');
     context.stdout('Los .zip se descomprimen automáticamente en memoria', 'info');
@@ -313,7 +325,7 @@ export async function run(args: string[], context: any) {
       if (success) {
         context.stdout('');
         context.stdout(
-          `Para abrirlo ejecuta: open-package ${packageName}`,
+          `Para abrirlo ejecuta: spm run ${packageName}`,
           'info'
         );
       }
@@ -333,7 +345,7 @@ export async function run(args: string[], context: any) {
       if (success) {
         context.stdout('');
         context.stdout(
-          `Para abrirlo ejecuta: open-package ${packageName}`,
+          `Para abrirlo ejecuta: spm run ${packageName}`,
           'info'
         );
       }
@@ -367,7 +379,7 @@ export async function run(args: string[], context: any) {
     if (success) {
       context.stdout('');
       context.stdout(
-        `Para abrirlo ejecuta: open-package ${packageName}`,
+        `Para abrirlo ejecuta: spm run ${packageName}`,
         'info'
       );
     }

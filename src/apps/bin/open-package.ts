@@ -15,11 +15,11 @@ export async function run(args: string[], context: any) {
     if ((window as any).ShawOSPackages && Object.keys((window as any).ShawOSPackages).length > 0) {
       context.stdout('Paquetes instalados:', 'success');
       Object.keys((window as any).ShawOSPackages).forEach(pkg => {
-        context.stdout(`  â€¢ ${pkg}`, 'info');
+        context.stdout(`  • ${pkg}`, 'info');
       });
     } else {
       context.stdout('No hay paquetes instalados', 'warning');
-      context.stdout('Instala uno con: apt install <nombre>', 'info');
+      context.stdout('Instala uno con: spm install <nombre>', 'info');
     }
     
     return { success: false };
@@ -29,8 +29,8 @@ export async function run(args: string[], context: any) {
   
   // Verificar si existe
   if (!((window as any).ShawOSPackages) || !((window as any).ShawOSPackages)[packageName]) {
-    context.stderr(`Paquete "${packageName}" no estÃ¡ instalado`);
-    context.stdout('InstÃ¡lalo con: apt install ' + packageName, 'info');
+    context.stderr(`Paquete "${packageName}" no está instalado`);
+    context.stdout('Instala uno con: spm install ' + packageName, 'info');
     return { success: false };
   }
 
@@ -57,9 +57,9 @@ export async function run(args: string[], context: any) {
     
     context.terminal.shawOS.appHandler.appInstances.set(id, appInstance)
     
-    if (!context.terminal.shawOS.appHandler.apps.has(packageName)) { context.terminal.shawOS.appHandler.apps.set(packageName, PackageClass); }
+    if (!context.terminal.shawOS.appHandler.apps[packageName]) { context.terminal.shawOS.appHandler.apps[packageName] = PackageClass; }
 
-    context.stdout(`âœ… Paquete "${packageName}" abierto`, 'success');
+    context.stdout(`Paquete "${packageName}" abierto`, 'success');
     return { success: true };
     
   } catch (error) {
