@@ -21,7 +21,9 @@ const EMBEDDED_WALLPAPERS: Wallpaper[] = [
   { name: "night", file: "night.webp" },
   { name: "Northern_Lights", file: "Northern_Lights.webp" },
   { name: "sea", file: "sea.webp" },
-  { name: "sky", file: "sky.webp" }
+  { name: "sky", file: "sky.webp" },
+  { name: "rex", file: "rex.webp" },
+  { name: "rex2", file: "rex2.webp" }
 ];
 
 // Obtener fondos disponibles con URLs completas
