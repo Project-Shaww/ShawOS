@@ -288,9 +288,9 @@ function showHelp(context: any) {
   context.stdout('');
   context.stdout('COMANDOS DISPONIBLES:', 'info');
   context.stdout('');
-  context.stdout('  spm install <package>      Instala un paquete desde el repositorio', 'info');
-  context.stdout('  spm install -gh <package>  Instala un paquete del repositorio oficial', 'info');
-  context.stdout('  spm install -o <url>       Instala desde una URL personalizada', 'info');
+  context.stdout('  spm install <package>      Instala un paquete oficial de Shaww', 'info');
+  context.stdout('  spm install -gh <package>  Instala un paquete de la comunidad (verificado)', 'info');
+  context.stdout('  spm install -o <url>       Instala desde cualquier URL (no verificado)', 'info');
   context.stdout('  spm run <package>          Ejecuta un paquete instalado', 'info');
   context.stdout('  spm -h                     Muestra esta ayuda', 'info');
   context.stdout('');
@@ -298,7 +298,7 @@ function showHelp(context: any) {
   context.stdout('  .js  - JavaScript', 'info');
   context.stdout('  .ts  - TypeScript', 'info');
   context.stdout('  .zip - Paquete comprimido', 'info');
-  context.stdout('  Carpetas con main.js', 'info');
+  context.stdout('  Carpetas con multiples archivos', 'info');
   context.stdout('');
   context.stdout('NOTA: Para ejecutar un paquete instalado usa: spm run <package>', 'info');
 }
