@@ -5,7 +5,7 @@
  * Descarga e instala paquetes .js o .zip desde el repositorio remoto de Shaww
  */
 
-const REPO_URL = 'http://localhost:5566/packages';
+const REPO_URL = 'https://shaww.duckdns.org/packages';
 
 // Importar JSZip desde CDN si no está disponible
 async function ensureJSZip() {
