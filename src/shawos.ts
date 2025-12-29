@@ -158,6 +158,8 @@ export class ShawOS {
             } else if (file.type === 'directory') {
                 this.openFileManagerInPath(file.name);
             } else {
+                this.fileSystem.currentPath = this.fileSystem.getUserHome().split('/').filter((p: string) => p !== '');
+                this.fileSystem.changeDirectory('Desktop');
                 const supportedFile = await this.appHandler.fileOpener(file);
                 if (!supportedFile) this.appHandler.openAppByName('files');
             }
