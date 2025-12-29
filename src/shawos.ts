@@ -89,9 +89,9 @@ export class ShawOS {
     
         console.log('📋 Archivos en Desktop:', files);
     
-        files.forEach(file => {
+        for (const file of files) {
             this.addDesktopIcon(file);
-        });
+        }
 
         // Restaurar la ruta original
         this.fileSystem.currentPath = savedPath;
@@ -138,7 +138,7 @@ export class ShawOS {
             <div class="label">${file.name}</div>
         `;
 
-        icon.addEventListener('dblclick', () => {
+        icon.addEventListener('dblclick', async () => {
             console.log('🖱️ Doble clic en:', file.name, 'Tipo:', file.type, 'Action:', file.action);
             if (file.type === 'app' || file.type === 'shortcut') {
                 // Es una aplicación o shortcut
@@ -151,7 +151,7 @@ export class ShawOS {
             } else if (file.type === 'directory') {
                 this.openFileManagerInPath(file.name);
             } else {
-                const supportedFile = this.appHandler.fileOpener(file);
+                const supportedFile = await this.appHandler.fileOpener(file);
                 if (!supportedFile) this.appHandler.openAppByName('filemanager');
             }
         });

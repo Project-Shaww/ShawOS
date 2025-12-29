@@ -1,6 +1,7 @@
 import Apps from './Apps.js';
 import AppSupportedFiles from './AppSupportedFiles.js';
 import type { HTMLContainer, WindowManager, FileSystem, ShawOS } from '../../types'
+import { DialogManager } from '../../managers/DialogManager.js';
 export class AppHandler {
     windowManager: WindowManager;
     fs: FileSystem;
@@ -15,14 +16,28 @@ export class AppHandler {
         this.appInstances = new Map<string, any>();
         this.apps = Apps;
         this.appSupportedFiles = AppSupportedFiles;
+        if (!(window as any).registerApp) {
+            (window as any).registerApp = (app_name: string, app: any, files: string[] = []) => {
+                this.apps[app_name] = app;
+                for (const file of files) { 
+                    if (this.appSupportedFiles[file]) { this.appSupportedFiles[file].push(app_name); continue; }
+                    this.appSupportedFiles[file] = [app_name]; 
+                }
+            }
+        }
     }
 
     getAppClassByName(appName: string) {
         return (this.apps as any)[appName] || null;
     }
 
-    getAppClassByFileType(fileType: string) {
-        return this.getAppClassByName((this.appSupportedFiles as any)[fileType]) || null;
+    async getAppClassByFileType(fileType: string) {
+        const supportedApps = (this.appSupportedFiles as any)[fileType] || null;
+        if (!supportedApps) return null;
+        if (supportedApps.length === 1) return this.getAppClassByName(supportedApps[0]);
+        const app = await DialogManager.prompt_select('Abrir archivo', 'Selecciona un app para abrir el archivo', supportedApps);
+        if (!app) return this.getAppClassByName(supportedApps[0]);
+        return this.getAppClassByName(app);
     }
 
     openApp(AppClass: any, appSettings: any, after = {}) {
@@ -48,8 +63,8 @@ export class AppHandler {
         return appInstance;
     }
 
-    fileOpener(file: any) {
-        const AppClass = this.getAppClassByFileType(file.name.split('.').pop());
+    async fileOpener(file: any) {
+        const AppClass = await this.getAppClassByFileType(file.name.split('.').pop() || '');
         if (!AppClass) return null;
         const appSettings = AppClass.appFileOpenerSettings({ fs: this.fs, filename: file.name });
         const appInstance = this.openApp(AppClass, appSettings, { filename: file.name });

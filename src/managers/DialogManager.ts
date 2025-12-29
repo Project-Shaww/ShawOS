@@ -50,6 +50,49 @@ export class DialogManager {
     });
   }
 
+  static prompt_select(title: string, message: string = '', values: string[]): Promise<string|null> {
+    return new Promise((resolve) => {
+      const overlay = document.createElement('div');
+      overlay.className = 'modal-overlay';
+
+      overlay.innerHTML = `
+        <div class="modal-dialog">
+          <div class="modal-title">${title}</div>
+          ${message ? `<div class="modal-message">${message}</div>` : ''}
+          <select class="modal-select" autofocus>
+            ${values.map((value) => `<option value="${value}">${value}</option>`).join('')}
+          </select>
+          <div class="modal-buttons">
+            <button class="modal-btn secondary" data-action="cancel">Cancelar</button>
+            <button class="modal-btn primary" data-action="ok">Aceptar</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+
+      const select = overlay.querySelector('.modal-select');
+      const okBtn = overlay.querySelector('[data-action="ok"]');
+      const cancelBtn = overlay.querySelector('[data-action="cancel"]');
+
+      (select as any).focus();
+
+      const close = (value: string | null) => {
+        overlay.remove();
+        resolve(value);
+      };
+
+      (okBtn as any).addEventListener('click', () => close((select as any).value || null));
+      (cancelBtn as any).addEventListener('click', () => close(null));
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          close(null);
+        }
+      });
+    });
+  }
+
   static alert(title: string, message: string): Promise<void> {
     return new Promise((resolve) => {
       const overlay = document.createElement('div');
