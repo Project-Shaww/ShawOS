@@ -1,6 +1,6 @@
 # ShawOS - V2
 
-![Estado](https://img.shields.io/badge/Estado-Completado-00FF00?style=flat-square&labelColor=1a1a1a)
+![Estado](https://img.shields.io/badge/Estado-_Completado-00D26A?style=flat-square&labelColor=1a1a1a)
 
 **Tecnologías:**
 
