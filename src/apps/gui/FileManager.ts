@@ -264,7 +264,7 @@ export class FileManager {
     return {
       window: ['files-' + Date.now(), '📁 Gestor de Archivos - ' + app.fs.getPath(), '', 700, 500],
       needsSystem: true,
-      onClose: () => {app.fs.currentPath = app.fs.getUserHome().split('/').filter((p: string) => p !== '');}
+      onClose: () => {app.fs.currentPath = (app.fs.getUserHome() + '/Desktop').split('/').filter((p: string) => p !== '');}
     }
   }
 
