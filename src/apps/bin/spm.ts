@@ -488,7 +488,7 @@ async function tryInstallFromGitHubFolder(repository: string, packageName: strin
 function addToHistory(command: string, fs: any) {
     const file = fs.getNodeAtPath('/bin/spm.hist');
     const spmHistory = JSON.parse(file.content);
-    spmHistory.push(command);
+    if (!spmHistory.includes(command)) spmHistory.push(command);
     fs.saveNodeAtPath('/bin/spm.hist', { type: 'file', name: 'spm.hist', content: JSON.stringify(spmHistory), createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString(), size: JSON.stringify(spmHistory).length });
 }
 

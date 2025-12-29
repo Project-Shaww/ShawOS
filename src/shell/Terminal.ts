@@ -134,7 +134,7 @@ export class Terminal {
         const command = (input as HTMLInputElement).value.trim();
         if (command) {
           this.executeCommand(command);
-          this.history.push(command);
+          if (this.history[this.history.length - 1] !== command) this.history.push(command);
           this.historyIndex = this.history.length;
           const content = JSON.stringify(this.history);
           const file = { type: 'file', name: 'cmd.hist', content: content ? content : '', createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString(), size: content ? content.length : 0 };
