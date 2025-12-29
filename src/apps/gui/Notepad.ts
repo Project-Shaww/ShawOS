@@ -50,14 +50,14 @@ export class Notepad {
     });
 
     this.container.getElementById('notepad-open')?.addEventListener('click', async () => {
-      const filename = await DialogManager.prompt('Abrir Archivo', 'Nombre del archivo a abrir:');
+      const filename = await DialogManager.fileSelector(this.fs, this.shawOS, 'Abrir archivo');
       if (!filename) return;
 
-      const content = this.fs.readFile(filename);
+      const content = this.fs.getNodeAtPath(filename);
       if (content !== null) {
         this.currentFile = filename;
-        this.content = content;
-        (textarea as any).value = content;
+        this.content = content.content;
+        (textarea as any).value = content.content;
       } else {
         await DialogManager.alert('Error', 'Archivo no encontrado');
       }
@@ -66,12 +66,12 @@ export class Notepad {
     this.container.getElementById('notepad-save')?.addEventListener('click', async () => {
       let filename = this.currentFile;
       if (!filename) {
-        filename = await DialogManager.prompt('Guardar Archivo', 'Nombre del archivo:');
+        filename = await DialogManager.newFileSelector(this.fs, this.shawOS, 'Guardar nuevo archivo');
         if (!filename) return;
       }
 
       if (!this.currentFile) {
-        if (this.fs.createFile(filename, this.content)) {
+        if (this.fs.saveNodeAtPath(filename, { type: 'file', name: filename.split('/')[filename.split('/').length - 1], content: this.content, createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString(), size: this.content.length })) {
           this.currentFile = filename;
           if (this.shawOS) this.shawOS.updateDesktopIcons();
           await DialogManager.alert('Éxito', 'Archivo guardado correctamente');
@@ -79,23 +79,34 @@ export class Notepad {
           await DialogManager.alert('Error', 'No se pudo crear el archivo');
         }
       } else {
-        if (this.fs.writeFile(filename, this.content)) {
-          await DialogManager.alert('Éxito', 'Archivo guardado correctamente');
+        var cf = this.fs.getNodeAtPath(filename);
+        if (cf == null || cf == undefined) { 
+          if (this.fs.saveNodeAtPath(filename, { type: 'file', name: filename.split('/')[filename.split('/').length - 1], content: this.content, createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString(), size: this.content.length })) {
+            await DialogManager.alert('Éxito', 'Archivo guardado correctamente');
+          } else {
+            await DialogManager.alert('Error', 'No se pudo guardar el archivo');
+          }
         } else {
-          await DialogManager.alert('Error', 'Error al guardar el archivo');
+          cf.content = this.content;
+          cf.modifiedAt = new Date().toISOString();
+          if (this.fs.saveNodeAtPath(filename, cf)) {
+            await DialogManager.alert('Éxito', 'Archivo guardado correctamente');
+          } else {
+            await DialogManager.alert('Error', 'Error al guardar el archivo');
+          }
         }
       }
     });
   }
 
   openFile(filename: string) {
-    const content = this.fs.readFile(filename);
+    const content = this.fs.getNodeAtPath(filename);
     if (content !== null) {
       this.currentFile = filename;
-      this.content = content;
+      this.content = content.content;
       const textarea = document.getElementById('notepad-textarea');
       if (textarea) {
-        (textarea as any).value = content;
+        (textarea as any).value = content.content;
       }
     }
   }
@@ -114,7 +125,7 @@ export class Notepad {
       after: (data: any) => {
         const savedPath = [...data.app.fs.currentPath];
         data.app.fs.currentPath = ['home', data.shawOS.user.username, 'Desktop'];
-        data.app.openFile(data.other.filename);
+        data.app.openFile('/' + data.fs.currentPath.join('/') + '/' + data.other.filename);
         data.app.fs.currentPath = savedPath;
       }
     }

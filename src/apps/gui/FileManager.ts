@@ -7,10 +7,16 @@ export class FileManager {
     container: HTMLContainer;
     fs: FileSystem;
     shawOS: ShawOS;
-  constructor(container: HTMLContainer, fileSystem: FileSystem, shawOS: ShawOS) {
+    selectedPath: string | null = null;
+    isFileSelector: boolean = false;
+    fileSelectorCallback: (path: string) => void = () => {};
+
+  constructor(container: HTMLContainer, fileSystem: FileSystem, shawOS: ShawOS, isFileSelector: boolean = false, fileSelectorCallback: (path: string) => void = () => {}) {
     this.container = container;
     this.fs = fileSystem;
     this.shawOS = shawOS;
+    this.isFileSelector = isFileSelector;
+    this.fileSelectorCallback = fileSelectorCallback;
     this.render();
   }
 
@@ -187,10 +193,23 @@ export class FileManager {
         // Remover selección previa
         listEl.querySelectorAll('.file-item').forEach(i => i.classList.remove('selected'));
         item.classList.add('selected');
+        
+        // Guardar ruta seleccionada
+        const currentPath = this.fs.getPath().replace('~', this.fs.getUserHome());
+        const separator = currentPath.endsWith('/') ? '' : '/';
+        this.selectedPath = `${currentPath}${separator}${file.name}`;
       });
 
       // Doble click para abrir
       item.addEventListener('dblclick', async () => {
+        if (this.isFileSelector && file.type !== 'directory') {
+          const currentPath = this.fs.getPath().replace('~', this.fs.getUserHome());
+          const separator = currentPath.endsWith('/') ? '' : '/';
+          this.selectedPath = `${currentPath}${separator}${file.name}`;
+          this.fileSelectorCallback(this.selectedPath);
+          return;
+        }
+
         if (file.type === 'app') {
           // Es una aplicación - ejecutar su acción
           console.log('🚀 Abriendo app:', file.name, 'Acción:', file.action);
@@ -247,5 +266,9 @@ export class FileManager {
       window: ['files-' + Date.now(), '📁 Gestor de Archivos - ' + app.fs.getPath(), '', 700, 500],
       needsSystem: true
     }
+  }
+
+  getSelectedPath(): string | null {
+    return this.selectedPath;
   }
 }

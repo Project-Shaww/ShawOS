@@ -53,27 +53,53 @@ export class CodeEditor {
         textarea.addEventListener('keydown', (e: KeyboardEvent) => {
             if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
-                this.fs.writeFile(this.currentFile, this.content);
+                var cf = this.fs.getNodeAtPath(this.currentFile);
+                cf.content = this.content;
+                cf.modifiedAt = new Date().toISOString();
+                this.fs.saveNodeAtPath(this.currentFile, cf);
             }
         });
 
         const saveBtn = this.container.getElementById('code-editor-save');
         if (!saveBtn) return;
         saveBtn.addEventListener('click', () => {
-            this.fs.writeFile(this.currentFile, this.content);
+            var cf = this.fs.getNodeAtPath(this.currentFile);
+            cf.content = this.content;
+            cf.modifiedAt = new Date().toISOString();
+            this.fs.saveNodeAtPath(this.currentFile, cf);
         });
 
         const openBtn = this.container.getElementById('code-editor-open');
         if (!openBtn) return;
         openBtn.addEventListener('click', async () => {
-            const filename = await DialogManager.prompt('Abrir Archivo', 'Nombre del archivo a abrir:');
-            if (!filename) return;
+            var cf = this.fs.getNodeAtPath(this.currentFile);
+            cf.content = this.content;
+            cf.modifiedAt = new Date().toISOString();
+            this.fs.saveNodeAtPath(this.currentFile, cf);
 
-            const content = this.fs.readFile(filename);
+            const path = await DialogManager.fileSelector(this.fs, this.shawOS, 'Abrir archivo');
+            if (!path) return;
+            if (this.currentFiles[path] !== undefined) {
+                this.setFile(path);
+                return;
+            }
+            const content = this.fs.getNodeAtPath(path);
             if (content !== null) {
-                this.currentFile = filename;
-                this.content = content;
-                (textarea as any).value = content;
+                const button = this.container.getElementById('code-editor-toolbar-files')?.appendChild(document.createElement('button'))
+                if (!button) return;
+                button.addEventListener('click', () => { this.setFile(path); });
+                button.textContent = path.split('/')[path.split('/').length - 1];
+                button.classList.add('code-editor-toolbar-file' );
+                const buttons = this.container.getElementById('code-editor-toolbar-files')?.getElementsByClassName('code-editor-toolbar-file');
+                if (!buttons) return;
+                    for (let i = 0; i < buttons.length; i++) {
+                    buttons[i].classList.remove('active');
+                    if (buttons[i].textContent == path.split('/')[path.split('/').length - 1]) buttons[i].classList.add('active');
+                }
+                this.currentFiles[path] = content.content;
+                this.currentFile = path;
+                this.content = content.content;
+                (textarea as any).value = content.content;
             } else {
                 await DialogManager.alert('Error', 'Archivo no encontrado');
             }
@@ -97,25 +123,25 @@ export class CodeEditor {
         }
     }
 
-    setFile(filename: string) {
-        if (this.currentFiles[filename] == null || this.currentFiles[filename] == undefined) return
+    setFile(path: string) {
+        if (this.currentFiles[path] == null || this.currentFiles[path] == undefined) return
         this.currentFiles[this.currentFile] = this.content;
         this.fs.writeFile(this.currentFile, this.content);
-        this.currentFile = filename;
-        this.content = this.currentFiles[filename];
+        this.currentFile = path;
+        this.content = this.currentFiles[path];
         const textarea: any | null = this.container.getElementById('code-editor-textarea');
         if (!textarea) return;
         const buttons = this.container.getElementById('code-editor-toolbar-files')?.getElementsByClassName('code-editor-toolbar-file');
         if (!buttons) return;
         for (let i = 0; i < buttons.length; i++) {
             buttons[i].classList.remove('active');
-            if (buttons[i].textContent == filename) buttons[i].classList.add('active');
+            if (buttons[i].textContent == path.split('/').pop()) buttons[i].classList.add('active');
         }
         textarea.value = this.content;
     }
 
-    openFile(filename: string) {
-        const content = this.fs.readFile(filename);
+    openFile(path: string, filename: string) {
+        const content = this.fs.getNodeAtPath(path);
         if (content !== null) {
             var mainwin = this.shawOS.windowManager.windows.get('code-editor');
             if (!mainwin) {
@@ -125,11 +151,11 @@ export class CodeEditor {
             }
             const mainapp = this.shawOS.appHandler.appInstances.get('code-editor');
             if (!mainapp) return;
-            if (mainapp.currentFiles[filename] != null && mainapp.currentFiles[filename] != undefined) { mainapp.setFile(filename); mainwin.window.focus(); this.shawOS.windowManager.closeWindow('code-editor-' + filename); return; }
-            mainapp.currentFiles[filename] = content;
+            if (mainapp.currentFiles[path] != null && mainapp.currentFiles[path] != undefined) { mainapp.setFile(path); mainwin.window.focus(); this.shawOS.windowManager.closeWindow('code-editor-' + filename); return; }
+            mainapp.currentFiles[path] = content.content;
             const button = mainapp.container.getElementById('code-editor-toolbar-files')?.appendChild(document.createElement('button'))
             if (!button) return;
-            button.addEventListener('click', () => { mainapp.setFile(filename); });
+            button.addEventListener('click', () => { mainapp.setFile(path); });
             button.textContent = filename;
             button.classList.add('code-editor-toolbar-file');
             const buttons = mainapp.container.getElementById('code-editor-toolbar-files')?.getElementsByClassName('code-editor-toolbar-file');
@@ -138,13 +164,13 @@ export class CodeEditor {
                 buttons[i].classList.remove('active');
                 if (buttons[i].textContent == filename) buttons[i].classList.add('active');
             }
-            mainapp.currentFiles[filename] = content;
-            mainapp.fs.writeFile(filename, content);
-            mainapp.currentFile = filename;
-            mainapp.content = content;
+            mainapp.currentFiles[path] = content.content;
+            mainapp.fs.saveNodeAtPath(path, content);
+            mainapp.currentFile = path;
+            mainapp.content = content.content;
             const textarea: any | null = mainapp.container.getElementById('code-editor-textarea');
             if (!textarea) return;
-            textarea.value = content;
+            textarea.value = content.content;
             mainwin.window.focus();
             this.shawOS.windowManager.closeWindow('code-editor-' + filename);
         }
@@ -164,7 +190,7 @@ export class CodeEditor {
             after: (data: any) => {
                 const savedPath = [...data.app.fs.currentPath];
                 data.app.fs.currentPath = ['home', data.shawOS.user.username, 'Desktop'];
-                data.app.openFile(data.other.filename);
+                data.app.openFile('/' + data.app.fs.currentPath.join('/') + '/' + data.other.filename, data.other.filename);
                 data.app.fs.currentPath = savedPath;
             }
         }
