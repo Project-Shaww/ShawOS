@@ -378,6 +378,10 @@ body {
   margin-top: 2px;
 }
 
+.file-item.selected {
+  background: #eee;
+}
+
 .calculator {
   display: flex;
   flex-direction: column;

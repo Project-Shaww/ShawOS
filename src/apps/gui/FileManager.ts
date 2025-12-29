@@ -67,7 +67,7 @@ export class FileManager {
     });
 
     this.container.getElementById('delete-btn')?.addEventListener('click', async () => {
-      const name = await DialogManager.prompt('Eliminar', 'Nombre del archivo o carpeta a eliminar:');
+      const name = this.selectedPath?.split('/').pop();
       if (name) {
         const confirmed = await DialogManager.confirm('Confirmar', `¿Seguro que quieres eliminar "${name}"?`);
         if (confirmed) {

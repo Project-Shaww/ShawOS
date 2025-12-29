@@ -175,9 +175,6 @@ export class ShawOS {
     
         // Abrir gestor de archivos
         this.appHandler.openAppByName('files');
-    
-        // Restaurar ruta
-        this.fileSystem.currentPath = savedPath;
     }
 
     setupStartMenu() {
