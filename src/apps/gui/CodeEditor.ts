@@ -106,7 +106,9 @@ export class CodeEditor {
         });
 
         // Auto-focus en el textarea cuando se hace click en el container
-        this.container.addEventListener('click', () => {
+        this.container.addEventListener('click', (e) => {
+            const textarea = this.container.getElementById('code-editor-textarea');
+            if (e.target == textarea) return;
             this.focusInput();
         });
     }
