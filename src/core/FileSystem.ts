@@ -539,25 +539,9 @@ Este es tu sistema operativo personal.
   saveNodeAtPath(path: string, node: any) {
     if (!path || !node) return false;
 
-    let segments = Array.isArray(path) ? [...path] : [];
-    if (typeof path === 'string') {
-      if (path === '/') segments = [];
-      else if (path === '~') segments = ['home', this.username];
-      else if (path.startsWith('~/')) {
-        const rest = path.slice(2).split('/').filter(s => s);
-        segments = ['home', this.username, ...rest];
-      } else {
-        segments = path.split('/').filter(s => s);
-        const looksAbsoluteHome = segments[0] === 'home' || segments[0] === '';
-        if (!looksAbsoluteHome) {
-          segments = [...this.currentPath, ...segments];
-        }
-      }
-    }
+    let segments = path.replace('~', this.getUserHome()).split('/').filter(s => s !== '');
 
     if (!Array.isArray(segments) || segments.length === 0) return false;
-
-    if (segments[0] !== 'home' || segments[1] !== this.username) return false;
 
     const fs = this.loadFileSystem();
     let nodeRef = fs;
@@ -608,6 +592,42 @@ Este es tu sistema operativo personal.
     }
 
     return true;
+  }
+
+  nodeExists(path: string) {
+    const fs = this.loadFileSystem();
+    let nodeRef = fs;
+
+    const segments = path.replace('~', this.getUserHome()).split('/').filter(s => s);
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      if (nodeRef.children && nodeRef.children[seg]) {
+        nodeRef = nodeRef.children[seg];
+      } else if (nodeRef[seg]) {
+        nodeRef = nodeRef[seg];
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  getNodeAtPath(path: string) {
+    const fs = this.loadFileSystem();
+    let nodeRef = fs;
+
+    const segments = path.replace('~', this.getUserHome()).split('/').filter(s => s);
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      if (nodeRef.children && nodeRef.children[seg]) {
+        nodeRef = nodeRef.children[seg];
+      } else if (nodeRef[seg]) {
+        nodeRef = nodeRef[seg];
+      } else {
+        return null;
+      }
+    }
+    return nodeRef;
   }
 
   // Obtener información del usuario

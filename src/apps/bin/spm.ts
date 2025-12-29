@@ -485,6 +485,13 @@ async function tryInstallFromGitHubFolder(repository: string, packageName: strin
   }
 }
 
+function addToHistory(command: string, fs: any) {
+    const file = fs.getNodeAtPath('/bin/spm.hist');
+    const spmHistory = JSON.parse(file.content);
+    spmHistory.push(command);
+    fs.saveNodeAtPath('/bin/spm.hist', { type: 'file', name: 'spm.hist', content: JSON.stringify(spmHistory), createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString(), size: JSON.stringify(spmHistory).length });
+}
+
 export async function run(args: string[], context: any) {
   // Comando de ayuda
   if (args.length === 0 || args[0] === '-h' || args[0] === '--help') {
@@ -587,6 +594,7 @@ export async function run(args: string[], context: any) {
             if (success) {
               context.stdout('');
               context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+              addToHistory('-o ' + customUrl, context.fs);
               return { success };
             }
           }
@@ -605,6 +613,7 @@ export async function run(args: string[], context: any) {
             if (success) {
               context.stdout('');
               context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+              addToHistory('-o ' + customUrl, context.fs);
               return { success };
             }
           }
@@ -631,6 +640,7 @@ export async function run(args: string[], context: any) {
         if (success) {
           context.stdout('');
           context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+          addToHistory('-o ' + customUrl, context.fs);
           return { success };
         }
       } else {
@@ -646,6 +656,7 @@ export async function run(args: string[], context: any) {
       if (folderSuccess) {
         context.stdout('');
         context.stdout(`Para abrirlo ejecuta: spm run ${packageName}`, 'info');
+        addToHistory(args.slice(1).join(' '), context.fs);
         return { success: true };
       }
     }
@@ -666,6 +677,7 @@ export async function run(args: string[], context: any) {
           `Para abrirlo ejecuta: spm run ${packageName}`,
           'info'
         );
+        addToHistory(args.slice(1).join(' '), context.fs);
         return { success };
       }
     }
@@ -685,6 +697,7 @@ export async function run(args: string[], context: any) {
           `Para abrirlo ejecuta: spm run ${packageName}`,
           'info'
         );
+        addToHistory(args.slice(1).join(' '), context.fs);
         return { success };
       }
     }
@@ -713,6 +726,7 @@ export async function run(args: string[], context: any) {
         `Para abrirlo ejecuta: spm run ${packageName}`,
         'info'
       );
+      addToHistory(args.slice(1).join(' '), context.fs);
       return { success };
     }
 

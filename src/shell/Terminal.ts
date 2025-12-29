@@ -13,6 +13,7 @@ export class Terminal {
   hostname: string;
   processManager: ProcessManager;
   context: AppContext;
+  inputAbailable: boolean;
 
   constructor(container: HTMLContainer, fileSystem: FileSystem, shawOS: ShawOS) {
     this.container = container;
@@ -22,9 +23,19 @@ export class Terminal {
     this.historyIndex = -1;
     this.username = fileSystem.getUsername();
     this.hostname = 'shawos';
+    this.inputAbailable = true;
     
-    this.processManager = new ProcessManager();
+    this.processManager = this.shawOS.processManager;
     this.context = new AppContext(this.fs, this, this.processManager);
+
+    if (!this.fs.nodeExists('/bin/cmd.hist')) {
+      const content = JSON.stringify([]);
+      const file = { type: 'file', name: 'cmd.hist', content: content ? content : '', createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString(), size: content ? content.length : 0 };
+      this.fs.saveNodeAtPath('/bin/cmd.hist', file);
+    } else {
+      this.history = JSON.parse(this.fs.getNodeAtPath('/bin/cmd.hist').content);
+      this.historyIndex = this.history.length;
+    }
     
     this.render();
   }
@@ -83,6 +94,12 @@ export class Terminal {
     this.focusInput();
   }
 
+  deleteInput() {
+    this.inputAbailable = false;
+    const input = this.container.querySelector('#terminal-input');
+    if (input) { input.remove(); }
+  }
+
   getPrompt() {
     const path = this.fs.getPath();
     return `<span class="prompt-user">${this.username}</span><span class="prompt-at">@</span><span class="prompt-host">${this.hostname}</span><span class="prompt-separator">:</span><span class="prompt-path">${path}</span><span class="prompt-symbol">$</span> `;
@@ -115,6 +132,9 @@ export class Terminal {
           this.executeCommand(command);
           this.history.push(command);
           this.historyIndex = this.history.length;
+          const content = JSON.stringify(this.history);
+          const file = { type: 'file', name: 'cmd.hist', content: content ? content : '', createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString(), size: content ? content.length : 0 };
+          this.fs.saveNodeAtPath('/bin/cmd.hist', file);
         } else {
           // Enter sin comando, solo mostrar prompt
           this.addOutput(this.getPrompt(), 'command', true);
@@ -187,6 +207,7 @@ export class Terminal {
   }
 
   focusInput() {
+    if (!this.inputAbailable) return;
     const input = document.getElementById('terminal-input');
     if (input) {
       input.focus();

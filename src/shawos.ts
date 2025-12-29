@@ -3,6 +3,7 @@ import { UserManager } from './core/UserManager.js';
 import { WindowManager } from './managers/WindowManager.js';
 import { BootScreen } from './boot/BootScreen.js';
 import { AppHandler } from './apps/handler/index.js';
+import { ProcessManager } from './core/ProcessManager.js';
 
 export class ShawOS {
     user: any;
@@ -10,6 +11,7 @@ export class ShawOS {
     windowManager: WindowManager;
     userManager: UserManager;
     appHandler: AppHandler;
+    processManager: ProcessManager;
 
     constructor(user: any) {
         this.user = user;
@@ -17,6 +19,7 @@ export class ShawOS {
         this.windowManager = new WindowManager();
         this.userManager = new UserManager();
         this.appHandler = new AppHandler(this.windowManager, this.fileSystem, this);
+        this.processManager = new ProcessManager();
     }
 
     init() {
@@ -27,6 +30,9 @@ export class ShawOS {
         this.setupDesktop();
         this.setupUserInfo();
         this.fileSystem.onFileCreated = (file: any) => this.addDesktopIcon(file);
+
+        // Initialize spm
+        this.restorePackages();
     
         // Actualizar escritorio después de un pequeño delay
         // para asegurar que el FileSystem esté completamente inicializado
@@ -152,7 +158,7 @@ export class ShawOS {
                 this.openFileManagerInPath(file.name);
             } else {
                 const supportedFile = await this.appHandler.fileOpener(file);
-                if (!supportedFile) this.appHandler.openAppByName('filemanager');
+                if (!supportedFile) this.appHandler.openAppByName('files');
             }
         });
 
@@ -168,7 +174,7 @@ export class ShawOS {
         this.fileSystem.changeDirectory(folderName);
     
         // Abrir gestor de archivos
-        this.appHandler.openAppByName('filemanager');
+        this.appHandler.openAppByName('files');
     
         // Restaurar ruta
         this.fileSystem.currentPath = savedPath;
@@ -239,6 +245,64 @@ export class ShawOS {
         this.userManager.logout();
         BootScreen.resetBoot();
         location.reload();
+    }
+
+    async restorePackages() {
+        if (!this.fileSystem.nodeExists('/bin/spm.hist')) {
+            const content = JSON.stringify([]);
+            const file = { type: 'file', name: 'spm.hist', content: content ? content : '', createdAt: new Date().toISOString(), modifiedAt: new Date().toISOString(), size: content ? content.length : 0 };
+            this.fileSystem.saveNodeAtPath('/bin/spm.hist', file);
+            return;
+        }
+
+        const file = this.fileSystem.getNodeAtPath('/bin/spm.hist');
+        let spmHistory: string[] = [];
+        try {
+            spmHistory = JSON.parse(file.content);
+        } catch (e) {
+            spmHistory = [];
+        }
+
+        if (!Array.isArray(spmHistory) || spmHistory.length === 0) return;
+
+        const terminal = this.appHandler.openAppByName('terminal');
+        terminal.deleteInput();
+        terminal.context.stdout('Reinstalando paquetes anteriores...');
+
+        const validHistory: string[] = [];
+        
+        // Ejecutar secuencialmente para manejar dependencias y evitar condiciones de carrera
+        for (const command of spmHistory) {
+            try {
+                // command eg: "-gh user/repo pkg" or just "pkg" or "-o url"
+                const args = ['i', ...command.split(' ')];
+                
+                const result = await this.processManager.execute('spm', args, terminal.context);
+                
+                // Verificar si result es exitoso
+                if (result && result.success) {
+                    terminal.context.stdout('Paquete reinstalado: ' + command, 'success');
+                    validHistory.push(command);
+                } else {
+                    terminal.context.stdout('Fallo al reinstalar: ' + command + '. Eliminando del historial.', 'error');
+                }
+            } catch (err) {
+                 terminal.context.stdout('Error al ejecutar: ' + command, 'error');
+            }
+        }
+
+        this.windowManager.closeWindow('terminal');
+        
+        // Guardar solo los comandos exitosos
+        const newContent = JSON.stringify(validHistory);
+        this.fileSystem.saveNodeAtPath('/bin/spm.hist', { 
+            type: 'file', 
+            name: 'spm.hist', 
+            content: newContent, 
+            createdAt: new Date().toISOString(), 
+            modifiedAt: new Date().toISOString(), 
+            size: newContent.length 
+        });
     }
 
     setupClock() {

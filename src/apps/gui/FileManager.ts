@@ -190,7 +190,7 @@ export class FileManager {
       });
 
       // Doble click para abrir
-      item.addEventListener('dblclick', () => {
+      item.addEventListener('dblclick', async () => {
         if (file.type === 'app') {
           // Es una aplicación - ejecutar su acción
           console.log('🚀 Abriendo app:', file.name, 'Acción:', file.action);
@@ -210,13 +210,12 @@ export class FileManager {
           this.fs.changeDirectory(file.name);
           this.updateView();
           this.updateWindowTitle();
-        } else if (file.name.endsWith('.txt')) {
-          if (this.shawOS) {
+        } else {
+          const fileType = file.name.split('.').pop();
+          const app = await this.shawOS.appHandler.fileOpener(fileType);
+          if (app) {
             this.openFileInNotepad(file.name);
           }
-        } else {
-          const content = this.fs.readFile(file.name);
-          DialogManager.alert(file.name, content || 'Archivo vacío');
         }
       });
 
