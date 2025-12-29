@@ -1,5 +1,5 @@
 const AppSupportedFiles = {
-    txt: ['notepad'],
+    txt: ['notepad', 'code-editor'],
     py: ['code-editor'],
     js: ['code-editor'],
     ts: ['code-editor'],
