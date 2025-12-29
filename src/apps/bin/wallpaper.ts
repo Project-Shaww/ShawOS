@@ -22,6 +22,7 @@ const EMBEDDED_WALLPAPERS: Wallpaper[] = [
   { name: "Northern_Lights", file: "Northern_Lights.webp" },
   { name: "sea", file: "sea.webp" },
   { name: "sky", file: "sky.webp" },
+  { name: "smiley", file: "smiley.webp" },
   { name: "rex", file: "rex.webp" },
   { name: "rex2", file: "rex2.webp" }
 ];
