@@ -41,7 +41,7 @@ export class AppHandler {
     }
 
     openApp(AppClass: any, appSettings: any, after = {}) {
-        const container = this.windowManager.createWindow(...(appSettings.window as [string, string, any, number, number]), () => { this.appInstances.delete(appSettings.window[0]); });
+        const container = this.windowManager.createWindow(...(appSettings.window as [string, string, any, number, number]), () => { this.appInstances.delete(appSettings.window[0]); if(appSettings.onClose){try{appSettings.onClose()}catch(e){console.log(e)}}});
         if (container) {
             var appInstance;
             if (appSettings.needsSystem) { appInstance = new AppClass(container, this.fs, this.shawOS); }

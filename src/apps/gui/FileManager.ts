@@ -230,9 +230,8 @@ export class FileManager {
           this.updateView();
           this.updateWindowTitle();
         } else {
-          const fileType = file.name.split('.').pop();
-          const app = await this.shawOS.appHandler.fileOpener(fileType);
-          if (app) {
+          const app = await this.shawOS.appHandler.fileOpener(file);
+          if (!app) {
             this.openFileInNotepad(file.name);
           }
         }
@@ -264,7 +263,8 @@ export class FileManager {
   static appSettings(app: any) {
     return {
       window: ['files-' + Date.now(), '📁 Gestor de Archivos - ' + app.fs.getPath(), '', 700, 500],
-      needsSystem: true
+      needsSystem: true,
+      onClose: () => {app.fs.currentPath = app.fs.getUserHome().split('/').filter((p: string) => p !== '');}
     }
   }
 

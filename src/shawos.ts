@@ -167,10 +167,9 @@ export class ShawOS {
     }
 
     openFileManagerInPath(folderName: string) {
-        // Guardar ruta actual
-        const savedPath = [...this.fileSystem.currentPath];
-    
         // Navegar a la carpeta
+        this.fileSystem.currentPath = this.fileSystem.getUserHome().split('/').filter((p: string) => p !== '');
+        this.fileSystem.changeDirectory('Desktop');
         this.fileSystem.changeDirectory(folderName);
     
         // Abrir gestor de archivos

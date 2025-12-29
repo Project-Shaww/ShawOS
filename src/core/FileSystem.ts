@@ -233,7 +233,8 @@ Este es tu sistema operativo personal.
 
   getCurrentNode() {
     let node = this.loadFileSystem();
-    
+    if (this.currentPath.length == 0) return node;
+
     for (const segment of this.currentPath) {
       if (node.children && node.children[segment]) {
         node = node.children[segment];
@@ -257,7 +258,7 @@ Este es tu sistema operativo personal.
       if (this.currentPath.length > 0) {
         const userHome = ['home', this.username];
         if (this.currentPath.length <= userHome.length) {
-          return false;
+          //return false;
         }
         this.currentPath.pop();
       }
@@ -333,10 +334,11 @@ Este es tu sistema operativo personal.
 
   listFiles() {
     const node = this.getCurrentNode();
-    if (!node || node.type !== 'directory') return [];
+    let children = node.children || {};
+    if (this.currentPath.length == 0) { children = node }
+    else if (!node || node.type !== 'directory') return [];
 
     const files = [];
-    const children = node.children || {};
 
     for (const name in children) {
       const child = children[name];
