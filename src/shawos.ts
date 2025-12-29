@@ -20,6 +20,7 @@ export class ShawOS {
         this.userManager = new UserManager();
         this.appHandler = new AppHandler(this.windowManager, this.fileSystem, this);
         this.processManager = new ProcessManager();
+        (window as any).registerCommand = function(this: any, name: string, runFunction: any) { this.processManager.registerPackageCommand(name, runFunction); }.bind(this);
     }
 
     init() {

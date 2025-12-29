@@ -98,6 +98,10 @@ export class Terminal {
     this.inputAbailable = false;
     const input = this.container.querySelector('#terminal-input');
     if (input) { input.remove(); }
+    const output = document.getElementById('terminal-output');
+    if (output) {
+      output.innerHTML = '';
+    }
   }
 
   getPrompt() {

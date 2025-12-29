@@ -18,6 +18,13 @@ export class ProcessManager {
     });
   }
 
+  registerPackageCommand(name: string, runFunction: any) {
+    this.processes.set(name, {
+      type: 'package',
+      module: {run: runFunction},
+    });
+  }
+
   // Execute a command
   async execute(command: string, args: string[] = [], context: any) {
     try {
