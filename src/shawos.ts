@@ -1,9 +1,10 @@
-import { FileSystem } from './core/FileSystem.js';
-import { UserManager } from './core/UserManager.js';
-import { WindowManager } from './managers/WindowManager.js';
-import { BootScreen } from './boot/BootScreen.js';
-import { AppHandler } from './apps/handler/index.js';
-import { ProcessManager } from './core/ProcessManager.js';
+import { FileSystem } from './core/FileSystem';
+import { UserManager } from './core/UserManager';
+import { WindowManager } from './managers/WindowManager';
+import { BootScreen } from './boot/BootScreen';
+import { AppHandler } from './apps/handler/index';
+import { ProcessManager } from './core/ProcessManager';
+import { AppContext } from './core/AppContext';
 
 export class ShawOS {
     user: any;
@@ -12,6 +13,7 @@ export class ShawOS {
     userManager: UserManager;
     appHandler: AppHandler;
     processManager: ProcessManager;
+    commandExecuterHelperContext: AppContext;
 
     constructor(user: any) {
         this.user = user;
@@ -20,6 +22,7 @@ export class ShawOS {
         this.userManager = new UserManager();
         this.appHandler = new AppHandler(this.windowManager, this.fileSystem, this);
         this.processManager = new ProcessManager();
+        this.commandExecuterHelperContext = new AppContext(this.fileSystem, {addOutput: (output: string, type: string, allowHTML: boolean) => console.log('Hidden Terminal: ' + type, output)}, this.processManager);
         (window as any).registerCommand = function(this: any, name: string, runFunction: any) { this.processManager.registerPackageCommand(name, runFunction); }.bind(this);
     }
 
@@ -53,7 +56,7 @@ export class ShawOS {
     loadBackground() {
         // Cargar el fondo guardado o usar el predeterminado
         const savedWallpaper = localStorage.getItem('shawos-wallpaper') || 'fondo';
-        const wallpaperUrl = `/backgrounds/${savedWallpaper}.webp`;
+        const wallpaperUrl = savedWallpaper.match(/^(http|https|data:|\/)/) ? savedWallpaper : `/backgrounds/${savedWallpaper}.webp`;
         
         fetch(wallpaperUrl)
             .then(response => {
@@ -264,10 +267,6 @@ export class ShawOS {
 
         if (!Array.isArray(spmHistory) || spmHistory.length === 0) return;
 
-        const terminal = this.appHandler.openAppByName('terminal');
-        terminal.deleteInput();
-        terminal.context.stdout('Reinstalando paquetes anteriores...');
-
         const validHistory: string[] = [];
         
         // Ejecutar secuencialmente para manejar dependencias y evitar condiciones de carrera
@@ -276,21 +275,19 @@ export class ShawOS {
                 // command eg: "-gh user/repo pkg" or just "pkg" or "-o url"
                 const args = ['i', ...command.split(' ')];
                 
-                const result = await this.processManager.execute('spm', args, terminal.context);
+                const result = await this.processManager.execute('spm', args, this.commandExecuterHelperContext);
                 
                 // Verificar si result es exitoso
                 if (result && result.success) {
-                    terminal.context.stdout('Paquete reinstalado: ' + command, 'success');
+                    this.commandExecuterHelperContext.stdout('Paquete reinstalado: ' + command, 'success');
                     validHistory.push(command);
                 } else {
-                    terminal.context.stdout('Fallo al reinstalar: ' + command + '. Eliminando del historial.', 'error');
+                    this.commandExecuterHelperContext.stdout('Fallo al reinstalar: ' + command + '. Eliminando del historial.', 'error');
                 }
             } catch (err) {
-                 terminal.context.stdout('Error al ejecutar: ' + command, 'error');
+                this.commandExecuterHelperContext.stdout('Error al ejecutar: ' + command, 'error');
             }
         }
-
-        this.windowManager.closeWindow('terminal');
         
         // Guardar solo los comandos exitosos
         const newContent = JSON.stringify(validHistory);

@@ -507,7 +507,7 @@ export async function run(args: string[], context: any) {
       return { success: false };
     }
 
-    context.terminal.executeCommand('open-package ' + packageName);
+    context.exec('open-package', [packageName]);
     return { success: true };
   }
 
