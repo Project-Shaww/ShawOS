@@ -256,7 +256,7 @@ export class FileManager {
         this.fs, 
         this.shawOS
       );
-      notepad.openFile(filename);
+      notepad.openFile('/' + this.fs.currentPath.join('/') + '/' + filename);
     }
   }
 
