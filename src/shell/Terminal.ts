@@ -98,7 +98,7 @@ export class Terminal {
     this.inputAbailable = false;
     const input = this.container.querySelector('#terminal-input');
     if (input) { input.remove(); }
-    const output = document.getElementById('terminal-output');
+    const output = this.container.getElementById('terminal-output');
     if (output) {
       output.innerHTML = '';
     }
@@ -212,7 +212,7 @@ export class Terminal {
 
   focusInput() {
     if (!this.inputAbailable) return;
-    const input = document.getElementById('terminal-input');
+    const input = this.container.getElementById('terminal-input');
     if (input) {
       input.focus();
       // Mover cursor al final
@@ -253,7 +253,7 @@ export class Terminal {
   }
 
   clearTerminal() {
-    const output = document.getElementById('terminal-output');
+    const output = this.container.getElementById('terminal-output');
     if (output) {
       output.innerHTML = '';
       this.addOutput('Terminal limpiada', 'success');
@@ -262,10 +262,10 @@ export class Terminal {
   }
 
   addOutput(text: string, type = 'info', allowHTML = false) {
-    const output = document.getElementById('terminal-output');
+    const output = this.container.getElementById('terminal-output');
     if (!output) return;
 
-    const line = document.createElement('div');
+    const line = this.container.createElement('div');
     line.className = `terminal-line terminal-${type}`;
 
     if (allowHTML) {

@@ -79,6 +79,10 @@ body {
   gap: 8px;
 }
 
+.hidden {
+  display: none;
+}
+
 #start-menu-btn {
   background: rgba(255, 255, 255, 0.1);
   border: none;

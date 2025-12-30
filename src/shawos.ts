@@ -4,7 +4,8 @@ import { WindowManager } from './managers/WindowManager';
 import { BootScreen } from './boot/BootScreen';
 import { AppHandler } from './apps/handler/index';
 import { ProcessManager } from './core/ProcessManager';
-import { AppContext } from './core/AppContext';
+import { Terminal } from './shell/Terminal';
+import { HTMLContainer } from './types';
 
 export class ShawOS {
     user: any;
@@ -13,7 +14,7 @@ export class ShawOS {
     userManager: UserManager;
     appHandler: AppHandler;
     processManager: ProcessManager;
-    commandExecuterHelperContext: AppContext;
+    hiddenTerminal: Terminal;
 
     constructor(user: any) {
         this.user = user;
@@ -22,7 +23,7 @@ export class ShawOS {
         this.userManager = new UserManager();
         this.appHandler = new AppHandler(this.windowManager, this.fileSystem, this);
         this.processManager = new ProcessManager();
-        this.commandExecuterHelperContext = new AppContext(this.fileSystem, {addOutput: (output: string, type: string, allowHTML: boolean) => console.log('Hidden Terminal: ' + type, output)}, this.processManager);
+        this.hiddenTerminal = this.setupHiddenTerminal();
         (window as any).registerCommand = function(this: any, name: string, runFunction: any) { this.processManager.registerPackageCommand(name, runFunction); }.bind(this);
     }
 
@@ -36,7 +37,7 @@ export class ShawOS {
         this.fileSystem.onFileCreated = (file: any) => this.addDesktopIcon(file);
 
         // Initialize spm
-        this.restorePackages();
+        this.restorePackages(); 
     
         // Actualizar escritorio después de un pequeño delay
         // para asegurar que el FileSystem esté completamente inicializado
@@ -51,6 +52,15 @@ export class ShawOS {
         if (startMenu) {
             startMenu.textContent = `ShawOS - ${this.user.username}`;
         }
+    }
+
+    setupHiddenTerminal() {
+        const container = (document.createElement('div') as HTMLContainer);
+        container.getElementById = function (id: string) { return container.querySelector(`#${id}`); };
+        container.createElement = function createElement(_tag: string) { return document.createElement(_tag); };
+        container.id = 'hidden-terminal';
+        container.style.display = 'none';
+        return new Terminal(container, this.fileSystem, this);
     }
 
     loadBackground() {
@@ -211,6 +221,27 @@ export class ShawOS {
         this.addSystemOptions();
     }
 
+    addAppToMenu(appId: string, appName: string) {
+        const startMenu: HTMLElement | null = document.getElementById('start-menu');
+        if (!startMenu) return;
+        
+        const otherApps: HTMLElement | null = startMenu.querySelector('.other-apps');
+        if (!otherApps) return;
+
+        otherApps.classList.remove('hidden');
+
+        const appItem = document.createElement('div');
+        appItem.className = 'menu-item';
+        appItem.textContent = appName;
+        appItem.dataset.action = appId;
+        appItem.addEventListener('click', () => {
+            const action = appItem.dataset.action;
+            this.handleMenuAction(action || '');
+            startMenu.classList.add('hidden');
+        });
+        otherApps.appendChild(appItem);
+    }
+
     addSystemOptions() {
         const startMenu: HTMLElement | null = document.getElementById('start-menu');
 
@@ -275,17 +306,17 @@ export class ShawOS {
                 // command eg: "-gh user/repo pkg" or just "pkg" or "-o url"
                 const args = ['i', ...command.split(' ')];
                 
-                const result = await this.processManager.execute('spm', args, this.commandExecuterHelperContext);
+                const result = await this.processManager.execute('spm', args, this.hiddenTerminal.context);
                 
                 // Verificar si result es exitoso
-                if (result && result.success) {
-                    this.commandExecuterHelperContext.stdout('Paquete reinstalado: ' + command, 'success');
+                if (result.success) {
+                    this.hiddenTerminal.context.stdout('Paquete reinstalado: ' + command, 'success');
                     validHistory.push(command);
                 } else {
-                    this.commandExecuterHelperContext.stdout('Fallo al reinstalar: ' + command + '. Eliminando del historial.', 'error');
+                    this.hiddenTerminal.context.stdout('Fallo al reinstalar: ' + command + '. Eliminando del historial.', 'error');
                 }
             } catch (err) {
-                this.commandExecuterHelperContext.stdout('Error al ejecutar: ' + command, 'error');
+                this.hiddenTerminal.context.stdout('Error al ejecutar: ' + command, 'error');
             }
         }
         

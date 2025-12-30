@@ -16,13 +16,14 @@ export class AppHandler {
         this.appInstances = new Map<string, any>();
         this.apps = Apps;
         this.appSupportedFiles = AppSupportedFiles;
-        if (!(window as any).registerApp) {
+        if (!(window as any).registerApp || true) {
             (window as any).registerApp = (app_name: string, app: any, files: string[] = []) => {
                 this.apps[app_name] = app;
                 for (const file of files) { 
                     if (this.appSupportedFiles[file]) { this.appSupportedFiles[file].push(app_name); continue; }
                     this.appSupportedFiles[file] = [app_name]; 
                 }
+                shawOS.addAppToMenu(app.appSettings({ fs: fileSystem }).window[0], app.appSettings({ fs: fileSystem }).window[1]);
             }
         }
     }

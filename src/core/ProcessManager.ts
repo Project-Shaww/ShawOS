@@ -33,7 +33,7 @@ export class ProcessManager {
         const proc = this.processes.get(command);
         if (proc.module && typeof proc.module.run === 'function') {
           const result = await proc.module.run(args, context);
-          return { success: true, result };
+          return result;
         }
       }
 
@@ -44,7 +44,7 @@ export class ProcessManager {
         
         if (typeof module.run === 'function') {
           const result = await module.run(args, context);
-          return { success: true, result };
+          return result;
         }
       } catch (importError) {
         try {
@@ -53,7 +53,7 @@ export class ProcessManager {
           
           if (typeof module.run === 'function') {
             const result = await module.run(args, context);
-            return { success: true, result };
+            return result;
           }
         } catch (importError) {
           return { 
