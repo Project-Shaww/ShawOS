@@ -17,6 +17,7 @@ export class ShawOS {
     hiddenTerminal: Terminal;
 
     constructor(user: any) {
+        (window as any).ShawOS = this;
         this.user = user;
         this.fileSystem = new FileSystem(user.username);
         this.windowManager = new WindowManager();
@@ -227,6 +228,8 @@ export class ShawOS {
         
         const otherApps: HTMLElement | null = startMenu.querySelector('.other-apps');
         if (!otherApps) return;
+
+        if (otherApps.querySelector(`[data-action="${appId}"]`)) return;
 
         otherApps.classList.remove('hidden');
 

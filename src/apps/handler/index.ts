@@ -18,6 +18,7 @@ export class AppHandler {
         this.appSupportedFiles = AppSupportedFiles;
         if (!(window as any).registerApp || true) {
             (window as any).registerApp = (app_name: string, app: any, files: string[] = []) => {
+                if (this.apps[app_name]) { console.log('App ' + app_name + ' ya está registrada'); return; }
                 this.apps[app_name] = app;
                 for (const file of files) { 
                     if (this.appSupportedFiles[file]) { this.appSupportedFiles[file].push(app_name); continue; }

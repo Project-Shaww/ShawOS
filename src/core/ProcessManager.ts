@@ -27,6 +27,52 @@ export class ProcessManager {
 
   // Execute a command
   async execute(command: string, args: string[] = [], context: any) {
+
+    if (args.includes('&&')) {
+      var res: any = {success: true, error: '[]'}
+      var _coms: any[] = [[command,[]]]
+      args.map((arg) => {
+        if (arg === '&&') {
+          _coms.push([])
+        } else if (_coms[_coms.length - 1].length === 0) {
+          _coms[_coms.length - 1].push(arg)
+          _coms[_coms.length - 1].push([])
+        } else {
+          _coms[_coms.length - 1][1].push(arg)
+        }
+      })
+      for (const com of _coms) {
+        const result: any = await this.execute(com[0], com[1], context);
+        if (!result.success) {
+          res = result.error ? {success: false, error: JSON.stringify([...JSON.parse(res.error), 'Error ejecutando ' + com[0] + ' ' + com[1].join(' ') + ': ' + result.error])} : {success: false, error: JSON.stringify([...JSON.parse(res.error), 'Error ejecutando ' + com[0] + ' ' + com[1].join(' ')])};
+        }
+      }
+      if (res.error === '[]') { res = {success: res.success} }
+      else { res.error = JSON.stringify('Fallaron ' + JSON.parse(res.error).length + ' comandos: ' + JSON.parse(res.error).join(', ')) }
+      return res;
+    }
+
+    if (args.includes('||')) {
+      var _coms: any[] = [[command,[]]]
+      args.map((arg) => {
+        if (arg === '||') {
+          _coms.push([])
+        } else if (_coms[_coms.length - 1].length === 0) {
+          _coms[_coms.length - 1].push(arg)
+          _coms[_coms.length - 1].push([])
+        } else {
+          _coms[_coms.length - 1][1].push(arg)
+        }
+      })
+      for (const com of _coms) {
+        const result: any = await this.execute(com[0], com[1], context);
+        if (result.success) {
+          return result;
+        }
+      }
+      return {success: false, error: 'Comando fallido'}
+    }
+    
     try {
       // Check if command is registered
       if (this.processes.has(command)) {

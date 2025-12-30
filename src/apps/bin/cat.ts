@@ -5,8 +5,8 @@ export async function run(args: string[], context: any) {
     return { success: false };
   }
 
-  const content = args[0].startsWith('/') ? context.fs.getNodeAtPath(args[0]).content : context.fs.readFile(args[0]);
-  if (content !== null) {
+  const content = args[0].startsWith('/') ? context.fs.getNodeAtPath(args[0])?.content || null : context.fs.readFile(args[0]);
+  if (content !== null && content !== undefined) {
     content.split('\n').forEach((line: string) => {
       context.stdout(line, 'info');
     });
